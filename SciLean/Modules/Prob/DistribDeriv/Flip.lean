@@ -46,6 +46,20 @@ theorem flip.distribDeriv_comp (f : X → ℝ) (x dx : X) (φ : Bool → W)
   ftrans
   simp only [ContinuousLinearMap.mk'_eval, neg_smul, sub_eq_add_neg]
 
+@[simp ↓]
+theorem flip.distribDeriv_comp_simped (f : X → ℝ) (x dx : X) (φ : Bool → W)
+    (hg : DifferentiableAt ℝ f x) :
+    ⟪distribDeriv (fun x : X => flip (f x)) x dx, φ⟫
+    =
+    let dy := fderiv ℝ f x dx
+    ⟪dflip dy, φ⟫  := by
+
+  unfold distribDeriv flip dflip; simp only [action]
+  ftrans
+  simp only [ContinuousLinearMap.mk'_eval]
+  simp only [neg_smul]
+  simp only [sub_eq_add_neg]
+
 
 @[simp ↓]
 theorem flip.bind.arg_xf.distribDeriv_rule
@@ -64,6 +78,26 @@ theorem flip.bind.arg_xf.distribDeriv_rule
   simp only [distribution_action_normalize, ContinuousLinearMap.mk'_eval, sub_eq_add_neg, neg_smul]
   abel
 
+@[simp ↓]
+theorem flip.bind.arg_xf.distribDeriv_rule_simped
+    (g : X → ℝ) (f : X → Bool → Distribution Z) (x dx) (φ : Z → W)
+    (hg : DifferentiableAt ℝ g x) (hf : ∀ b, DifferentiableAt ℝ (fun x => ⟪f x b, φ⟫) x) :
+    ⟪distribDeriv (fun x' => bind (flip (g x')) (f x')) x dx, φ⟫
+    =
+    let y := g x
+    let dy := fderiv ℝ g x dx
+    ⟪dflip dy >>= (f x ·), φ⟫
+    +
+    ⟪flip y, fun y => ⟪distribDeriv (f · y) x dx, φ⟫⟫ := by
+
+  simp only [bind]
+  simp only [distribDeriv]
+  simp only [flip]
+  simp only [dflip]
+  simp only [action]; simp only [distribution_action_normalize]
+  ftrans;
+  simp only [distribution_action_normalize, ContinuousLinearMap.mk'_eval, sub_eq_add_neg, neg_smul]
+  abel
 
 
 @[simp ↓]

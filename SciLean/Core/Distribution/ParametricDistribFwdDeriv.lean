@@ -90,3 +90,24 @@ theorem bind_rule
   sorry_proof
   sorry_proof
   -- simp only [ftrans_simp, action_push]
+
+theorem bind_rule_simped
+    (f : X → Y → 𝒟'(Z,V)) (g : X → 𝒟'(Y,U)) (L : U ⊸ V ⊸ W)
+    (hf : DistribDifferentiable (fun (x,y) => f x y)) (hg : DistribDifferentiable g) :
+    parDistribFwdDeriv (fun x => (g x).bind (f x) L)
+    =
+    fun x dx =>
+      let ydy := parDistribFwdDeriv g x dx  -- 𝒟'(Y,U×U)
+      let zdz := fun y => parDistribFwdDeriv (f · y) x dx -- Y → 𝒟'(Z,V×V)
+      ydy.bind zdz (fun (r,dr) ⊸ fun (s,ds) ⊸ (L r s, L r ds + L dr s)) := by
+
+  unfold parDistribFwdDeriv Distribution.bind
+  autodiff
+  funext x dx
+  fun_trans [action_push,fwdDeriv]
+  ext φ
+  simp only [ftrans_simp]
+  simp only [postComp]
+  sorry_proof
+  sorry_proof
+  -- simp only [ftrans_simp, action_push]

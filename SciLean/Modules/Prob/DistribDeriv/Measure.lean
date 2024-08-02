@@ -85,6 +85,27 @@ theorem measure.distribFwdDeriv_comp
 
 
 @[simp ↓]
+theorem measure.distribFwdDeriv_comp_simped
+    (f : X → Y) (μ : Y → @Measure Z (borel Z)) (x dx : X) (φ : Z → W×W)
+    (hf : DifferentiableAt ℝ f x)
+    (hφ : DifferentiableUnderIntegralAt (fun x y => φ y) μ (f x)) :
+    ⟪distribFwdDeriv (fun x : X => (μ (f x)).toDistribution) x dx, φ⟫
+    =
+    let ydy := fwdFDeriv ℝ f x dx
+    ⟪distribFwdDeriv (fun x => (μ x).toDistribution) ydy.1 ydy.2, φ⟫ := by
+
+  have h : DifferentiableUnderIntegralAt (fun x y => (φ y).1) μ (f x) := sorry
+
+  simp only [distribFwdDeriv]
+  simp only [fdaction_mk_apply]
+  simp only [apply_measure_as_distribution]
+  simp only [fwdFDeriv]
+  simp only [differentiableAt_id', Prod.mk.injEq, add_left_inj, true_and]
+  rw[measure.distribDeriv_comp]
+  apply hf
+  apply h
+
+@[simp ↓]
 theorem measure.bind.arg_xf.distribFwdDeriv_rule
     (μ : X → @Measure Y (borel Y)) (f : X → Y → Distribution Z) (x dx) (φ : Z → W×W)
     (hf : DifferentiableUnderIntegralAt (fun x y => ⟪f x y, φ⟫) μ x) :
@@ -99,6 +120,27 @@ theorem measure.bind.arg_xf.distribFwdDeriv_rule
   simp [distribFwdDeriv,fwdFDeriv]
   rw[measure.bind.arg_xf.distribDeriv_rule]
   . simp only [action_bind, differentiableAt_id', apply_measure_as_distribution]
+    rw [integral_add h h']
+    .simp[add_assoc]
+  . apply h''
+
+
+@[simp ↓]
+theorem measure.bind.arg_xf.distribFwdDeriv_rule_simped
+    (μ : X → @Measure Y (borel Y)) (f : X → Y → Distribution Z) (x dx) (φ : Z → W×W)
+    (hf : DifferentiableUnderIntegralAt (fun x y => ⟪f x y, φ⟫) μ x) :
+    ⟪distribFwdDeriv (fun x' => (μ x').toDistribution >>= (f x')) x dx, φ⟫
+    =
+    ⟪distribFwdDeriv (fun x' => (μ x').toDistribution) x dx, fun y => ⟪distribFwdDeriv (f · y) x dx, φ⟫⟫ := by
+
+  have h  : Integrable (fun x_1 => ⟪distribDeriv (fun x => f x x_1) x dx, fun x => (φ x).1⟫) (μ x) := sorry
+  have h' : Integrable (fun x_1 => ⟪f x x_1, fun x => (φ x).2⟫) (μ x) := sorry
+  have h'' : DifferentiableUnderIntegralAt (fun x y => ⟪f x y, fun x => (φ x).1⟫) (fun x' => μ x') x := sorry
+
+  simp [distribFwdDeriv,fwdFDeriv]
+  rw[measure.bind.arg_xf.distribDeriv_rule]
+  . simp only [action_bind]
+    simp only [differentiableAt_id', apply_measure_as_distribution]
     rw [integral_add h h']
     .simp[add_assoc]
   . apply h''

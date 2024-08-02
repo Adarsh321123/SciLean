@@ -67,3 +67,24 @@ def foo4 (t' : R) :=
 
     rand_pull_E
     simp (disch:=sorry) only [ftrans_simp]
+
+def foo4_simped (t' : R) :=
+  derive_random_approx
+    (∂ (t:=t'), ∫' (x : R) in Ioo 0 1, ∫' (y : R) in Ioo 0 1, if x ≤ t then x*y*t else x+y+t)
+  by
+    fun_trans only [scalarGradient, scalarCDeriv]
+    simp only [Tactic.if_pull]
+    fun_trans only [scalarGradient, scalarCDeriv]
+    simp only [ftrans_simp, toDistrib_pull,restrict_pull, restrict_push, ftrans_simp,restrict_push]
+    simp (disch:=sorry) only [action_push, ftrans_simp, restrict_push]
+
+    conv =>
+      enter[2]
+      simp only [distrib_eval,ftrans_simp, Tactic.if_pull]
+      simp (disch:=sorry) only [action_push, ftrans_simp, restrict_push]
+      simp only [distrib_eval,ftrans_simp]
+
+    simp only [distrib_eval,ftrans_simp]
+
+    rand_pull_E
+    simp (disch:=sorry) only [ftrans_simp]

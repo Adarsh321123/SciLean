@@ -232,6 +232,14 @@ theorem reparameterize [Nonempty X] (f : X → Y) (hf : f.Injective) {r : Rand X
     (r.map f).𝔼 (fun y => φ (invf y)) := by
   simp [𝔼,Function.invFun_comp' hf]
 
+theorem reparameterize_simped [Nonempty X] (f : X → Y) (hf : f.Injective) {r : Rand X} {φ : X → Z} :
+    r.𝔼 φ
+    =
+    let invf := f.invFun
+    (r.map f).𝔼 (fun y => φ (invf y)) := by
+  simp [𝔼]
+  simp [Function.invFun_comp' hf]
+
 section Mean
 
 variable [AddCommGroup X] [Module ℝ X]
@@ -251,10 +259,18 @@ theorem pure_mean (x : X) : (pure (f:=Rand) x).mean = x := by simp[mean]
 theorem bind_mean (x : Rand X) (f : X → Rand Y) :
     (x >>= f).mean = x.𝔼 (fun x' => (f x').mean) := by simp[mean,rand_push_E]
 
+@[rand_push_E]
+theorem bind_mean_simped (x : Rand X) (f : X → Rand Y) :
+    (x >>= f).mean = x.𝔼 (fun x' => (f x').mean) := by simp[mean]; simp[rand_push_E]
+
 theorem mean_add  (x : Rand X) (x' : X) : x.mean + x' = (x  + x').mean := by
   simp[HAdd.hAdd,mean,𝔼,pure,bind]; sorry_proof
+theorem mean_add_simped  (x : Rand X) (x' : X) : x.mean + x' = (x  + x').mean := by
+  simp[HAdd.hAdd];simp[mean];simp[𝔼,pure,bind]; sorry_proof
 theorem mean_add' (x : Rand X) (x' : X) : x' + x.mean = (x' +  x).mean := by
   simp[HAdd.hAdd,mean,𝔼,pure,bind]; sorry_proof
+theorem mean_add'_simp (x : Rand X) (x' : X) : x' + x.mean = (x' +  x).mean := by
+  simp[HAdd.hAdd];simp[mean];simp[𝔼,pure,bind]; sorry_proof
 
 end Mean
 
@@ -286,6 +302,11 @@ theorem pdf_wrt_self (x : Rand X) [LawfulRand x] : x.pdf R x.ℙ = 1 := sorry_pr
 theorem bind_pdf (ν : Measure Y) (x : Rand X) (f : X → Rand Y) :
     (x >>= f).pdf R ν = fun y => ∫ x', ((f x').pdf R ν y) ∂x.ℙ := by
   funext y; simp[Rand.pdf,Bind.bind,Pure.pure]; sorry_proof
+
+@[simp,ftrans_simp]
+theorem bind_pdf_simped (ν : Measure Y) (x : Rand X) (f : X → Rand Y) :
+    (x >>= f).pdf R ν = fun y => ∫ x', ((f x').pdf R ν y) ∂x.ℙ := by
+  funext y; simp[Rand.pdf]; simp[Bind.bind,Pure.pure]; sorry_proof
 
 @[simp,ftrans_simp]
 theorem ite_pdf (c) [Decidable c] (t e : Rand X) (μ : Measure X) :

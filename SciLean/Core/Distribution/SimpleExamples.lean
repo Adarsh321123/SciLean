@@ -41,6 +41,11 @@ def foo1 (t' : R) := (∂ (t:=t'), ∫' (x:R) in Ioo 0 1, if x ≤ t then (1:R) 
     simp only [ftrans_simp]
     simp only [action_push, ftrans_simp]
 
+def foo1_simped (t' : R) := (∂ (t:=t'), ∫' (x:R) in Ioo 0 1, if x ≤ t then (1:R) else 0)
+  rewrite_by
+    fun_trans only [scalarGradient, scalarCDeriv]
+    simp only [ftrans_simp, action_push, ftrans_simp]
+
 theorem foo1_spec (t : R) :
     foo1 t = if 0 < t ∧ t < 1 then 1 else 0 := by rfl
 

@@ -50,6 +50,23 @@ def walkOnSpheres (φ : Vec3 → Float) (g : Vec3 → Y) (n : ℕ) (x : Vec3) : 
   return f x
 
 
+def walkOnSpheres_simped (φ : Vec3 → Float) (g : Vec3 → Y) (n : ℕ) (x : Vec3) : Rand Y := do
+  let f ←
+    derive_random_approx
+      (fun x => harmonicRec n φ g x)
+    by
+      induction n n' prev h
+        . simp[harmonicRec]
+        . simp[harmonicRec]
+          simp[h]
+          simp only [smul_push]
+          simp only [cintegral.arg_f.push_lambda]
+          rw[integral_as_uniform_E Float]
+      rw[pull_E_nat_recOn (x₀:=_) (r:=_) (hf:=by fun_prop)]
+      simp (config:={zeta:=false})
+  return f x
+
+
 @[fun_prop]
 theorem harmonicRec.arg_x.CDifferentiable_rule (n : ℕ)
     (φ : Vec3 → Float) (g : Vec3 → Y)
@@ -115,6 +132,13 @@ def harmonicRec'_fwdDeriv (n : ℕ) :=
       . simp only [harmonicRec']; autodiff
       . simp only [harmonicRec',smul_push]; autodiff
 
+noncomputable
+def harmonicRec'_fwdDeriv_simped (n : ℕ) :=
+    (∂> (φ,g,x), harmonicRec' (Y:=Y) n φ g x)
+  rewrite_by
+    induction n n' du h
+      . simp only [harmonicRec']; autodiff
+      . simp only [harmonicRec']; simp only [smul_push]; autodiff
 
 def harmonicRec'_fwdDeriv_rand (n : ℕ)
     (φ dφ : Vec3 ⟿FD Float) (g dg : Vec3 ⟿FD Y) (x dx : Vec3) : Rand (Y×Y) := do

@@ -322,16 +322,33 @@ def comp (f : Face P n) (g : Face f.toPrism m) : Face P m :=
    by simp[f.repr_ofPrism],
    by simp; cases m; simp; simp; done⟩
 
+def comp_simped (f : Face P n) (g : Face f.toPrism m) : Face P m :=
+  ⟨f.repr.comp (g.repr.fromCanonical f.repr.toPrism (by simp[g.2];simp[toPrism]; done))
+   (by simp[g.2]; simp[toPrism];simp[f.2]; done),
+   by simp[f.repr_ofPrism],
+   by simp; cases m; simp; simp; done⟩
+
 @[simp]
 theorem comp_toPrism (f : Face P n) (g : Face f.toPrism m)
   : (f.comp g).toPrism = g.toPrism := by simp[comp,toPrism]
+
+
+@[simp]
+theorem comp_toPrism_simped (f : Face P n) (g : Face f.toPrism m)
+  : (f.comp g).toPrism = g.toPrism := by simp[comp]; simp[toPrism]
 
 @[simp]
 theorem comp_dim (f : Face P n) (g : Face f.toPrism m)
   : (f.comp g).dim = g.dim := by simp[comp,dim]
 
+@[simp]
+theorem comp_dim_simped (f : Face P n) (g : Face f.toPrism m)
+  : (f.comp g).dim = g.dim := by simp[comp];simp[dim]
+
 def tip (P : Prism) : Face (P.cone) (some 0) := ⟨.tip P.repr, by simp[FaceRepr.ofPrism,Prism.cone], by simp[FaceRepr.dim, FaceRepr.toPrism]⟩
+def tip_simped (P : Prism) : Face (P.cone) (some 0) := ⟨.tip P.repr, by simp[FaceRepr.ofPrism];simp[Prism.cone], by simp[FaceRepr.dim];simp[FaceRepr.toPrism]⟩
 def cone (f : Face P n) : Face (P.cone) (n.map (·+1)) := ⟨.cone f.repr, by simp[FaceRepr.ofPrism,Prism.cone, f.2], sorry_proof⟩
+def cone_simped (f : Face P n) : Face (P.cone) (n.map (·+1)) := ⟨.cone f.repr, by simp[FaceRepr.ofPrism];simp[Prism.cone];simp[f.2], sorry_proof⟩
 def base (f : Face P n) : Face (P.cone) n := ⟨.base f.repr, sorry_proof, sorry_proof⟩
 
 local instance : Add (Option Nat) := ⟨λ n m => match n, m with | some n, some m => n+m | _, _ => none⟩
@@ -448,9 +465,17 @@ namespace Inclusion
 
 def toFace (f : Inclusion Q P) : Face P Q.dim := ⟨f.1, f.2, by simp[Prism.dim, FaceRepr.dim]; rw[← f.3]; simp⟩
 
+def toFace_simped (f : Inclusion Q P) : Face P Q.dim := ⟨f.1, f.2, by simp[Prism.dim];simp[FaceRepr.dim]; rw[← f.3]; simp⟩
+
 def comp (f : Inclusion Q P) (g : Inclusion S Q) : Inclusion S P :=
   ⟨f.repr.comp (g.repr.fromCanonical f.repr.toPrism (by simp[g.2, f.3]; done))
    (by simp[g.2, f.2]; done),
+   by simp[f.2]; done,
+   by simp[g.3]; done⟩
+
+def comp_simped (f : Inclusion Q P) (g : Inclusion S Q) : Inclusion S P :=
+  ⟨f.repr.comp (g.repr.fromCanonical f.repr.toPrism (by simp[g.2]; simp[f.3]; done))
+   (by simp[g.2]; simp[f.2]; done),
    by simp[f.2]; done,
    by simp[g.3]; done⟩
 
@@ -513,6 +538,8 @@ end PrismDecomposition
 namespace Prism
 
 def topFace (P : Prism) : Face P P.dim := ⟨P.repr.topFace, by simp, by simp[FaceRepr.dim,Prism.dim]⟩
+
+def topFace_simped (P : Prism) : Face P P.dim := ⟨P.repr.topFace, by simp, by simp[FaceRepr.dim];simp[Prism.dim]⟩
 
 
 /-- Tries to find decomposition of `P` such that `P = P₁ * ??`

@@ -81,6 +81,24 @@ theorem normal.distribDeriv_comp
 
 
 @[simp]
+theorem normal.distribDeriv_comp_simped
+    (μ σ : X → ℝ) (x dx : X) (φ : ℝ → W) (hab : σ x ≠ 0)
+    (hμ : DifferentiableAt ℝ μ x) (hμ : DifferentiableAt ℝ σ x)
+    /- assume that φ is dominated by some polynomial and measurable -/ :
+    ⟪distribDeriv (fun x : X => normal (μ x) (σ x)) x dx, φ⟫
+    =
+    let μ' := μ x
+    let dμ := fderiv ℝ μ x dx
+    let σ' := σ x
+    let dσ := fderiv ℝ σ x dx
+    ⟪dnormal μ' σ' dμ dσ, φ⟫ := by
+
+  simp[normal]
+  simp[dnormal]
+  simp[bind,distribDeriv]
+  sorry
+
+@[simp]
 theorem normal.bind.arg_xf.distribDeriv_rule
     (μ σ : X → ℝ) (f : X → ℝ → Distribution Z) (x dx) (φ : Z → W) (hσ₀ : σ x ≠ 0)
     (hμ : DifferentiableAt ℝ μ x) (hμ : DifferentiableAt ℝ σ x)
@@ -97,6 +115,28 @@ theorem normal.bind.arg_xf.distribDeriv_rule
     ⟪normal μ' σ', fun y => ⟪distribDeriv (f · y) x dx, φ⟫⟫ := by
 
   simp [distribDeriv, normal, dnormal, bind]
+  sorry
+
+
+@[simp]
+theorem normal.bind.arg_xf.distribDeriv_rule_simped
+    (μ σ : X → ℝ) (f : X → ℝ → Distribution Z) (x dx) (φ : Z → W) (hσ₀ : σ x ≠ 0)
+    (hμ : DifferentiableAt ℝ μ x) (hμ : DifferentiableAt ℝ σ x)
+    -- TODO: weaken 'hf' such that we still need `hμ` and `hσ`
+    (hf : DifferentiableUnderIntegralAt (fun x y => ⟪f x y, φ⟫) (fun x => (gaussianReal (μ x) ((σ x)^2).toNNReal)) x) :
+    ⟪distribDeriv (fun x' => bind (normal (μ x') (σ x')) (f x')) x dx, φ⟫
+    =
+    let μ' := μ x
+    let dμ := fderiv ℝ μ x dx
+    let σ' := σ x
+    let dσ := fderiv ℝ σ x dx
+    ⟪dnormal μ' σ' dμ dσ >>= (f x ·), φ⟫
+    +
+    ⟪normal μ' σ', fun y => ⟪distribDeriv (f · y) x dx, φ⟫⟫ := by
+
+  simp [distribDeriv]
+  simp [normal]
+  simp [dnormal,bind]
   sorry
 
 

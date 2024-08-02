@@ -255,6 +255,12 @@ def DataArrayN.reshape (x : DataArrayN α ι) (κ : Type) [IndexType κ]
   : DataArrayN α κ :=
   ⟨x.data, by simp[hs,x.h_size]⟩
 
+@[pp_dot]
+def DataArrayN.reshape_simped (x : DataArrayN α ι) (κ : Type) [IndexType κ]
+  (hs : IndexType.card κ = IndexType.card ι)
+  : DataArrayN α κ :=
+  ⟨x.data, by simp[hs]; simp[x.h_size]⟩
+
 instance {Cont ι α : Type} [ArrayType Cont ι α] [IndexType ι] [Inhabited α] [pd : PlainDataType α] :
     PlainDataType Cont where
   btype := match pd.btype with

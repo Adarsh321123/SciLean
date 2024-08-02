@@ -233,6 +233,20 @@ theorem HMul.hMul.arg_a0a1.fderiv_rule_at
   simp[fderiv_mul hf hg, mul_comm]
 
 
+@[fun_trans, to_any_point]
+theorem HMul.hMul.arg_a0a1.fderiv_rule_at_simped
+    {Y : Type _} [NormedCommRing Y] [NormedAlgebra K Y] (x : X)
+    (f g : X → Y) (hf : DifferentiableAt K f x) (hg : DifferentiableAt K g x) :
+    (fderiv K fun x => f x * g x) x
+    =
+    let fx := f x
+    let gx := g x
+    fun dx =>L[K]
+      (fderiv K g x dx) * fx + (fderiv K f x dx) * gx := by
+  ext dx
+  simp[fderiv_mul hf hg]
+  simp[mul_comm]
+
 
 -- SMul.smul -------------------------------------------------------------------
 --------------------------------------------------------------------------------

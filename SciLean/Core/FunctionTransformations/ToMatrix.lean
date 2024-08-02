@@ -99,6 +99,17 @@ by
   unfold toMatrix
   simp[Basis.basis,Basis.proj]
 
+@[fun_trans]
+theorem Prod.fst.arg_self.toMatrix_rule_simped
+  (f : X → Y×Z) (hf : IsLinearMap K f)
+  : toMatrix K (fun x => (f x).1)
+    =
+    fun iy ix => toMatrix K f (.inl iy) ix :=
+by
+  unfold toMatrix
+  simp[Basis.basis]
+  simp[Basis.proj]
+
 
 @[fun_trans]
 theorem Prod.snd.arg_self.toMatrix_rule
@@ -109,6 +120,17 @@ theorem Prod.snd.arg_self.toMatrix_rule
 by
   unfold toMatrix
   simp[Basis.basis,Basis.proj]
+
+@[fun_trans]
+theorem Prod.snd.arg_self.toMatrix_rule_simped
+  (f : X → Y×Z) (hf : IsLinearMap K f)
+  : toMatrix K (fun x => (f x).2)
+    =
+    fun iz ix => toMatrix K f (.inr iz) ix :=
+by
+  unfold toMatrix
+  simp[Basis.basis]
+  simp[Basis.proj]
 
 
 @[fun_trans]

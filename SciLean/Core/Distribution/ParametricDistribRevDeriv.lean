@@ -103,6 +103,22 @@ theorem dirac.arg_xy.parDistribRevDeriv_rule
   sorry_proof -- fix fun_trans bug "unexpected bound variable #0"
   -- fun_trans
 
+@[fun_trans]
+theorem dirac.arg_xy.parDistribRevDeriv_rule_simped
+    (x : W → X) (hx : HasAdjDiff R x) :
+    parDistribRevDeriv (fun w => dirac (x w) (R:=R))
+    =
+    fun w =>
+      let xdx := revDeriv' R x w
+      diracRevDeriv xdx.1 |>.postComp (⟨fun (r,dφ) => (r, fun dr ⊸ xdx.2 (dφ dr)), sorry_proof⟩) := by
+
+  funext w; apply Distribution.ext _ _; intro φ
+  have : HasAdjDiff R φ := sorry_proof -- this should be consequence of that `R` has dimension one
+  simp [diracRevDeriv,revDeriv]
+  simp [parDistribRevDeriv]
+  simp [postComp]
+  sorry_proof -- fix fun_trans bug "unexpected bound variable #0"
+  -- fun_trans
 
 ----------------------------------------------------------------------------------------------------
 -- Integral ----------------------------------------------------------------------------------------
@@ -158,4 +174,16 @@ theorem HAdd.hAdd.arg_a0a1.parDistribDeriv_rule (f g : W → 𝒟'(X,Y))
       ydf + ydg := by
   funext w; ext φ; simp[parDistribRevDeriv]
   simp[parDistribRevDeriv]
+  sorry_proof
+
+@[fun_trans]
+theorem HAdd.hAdd.arg_a0a1.parDistribDeriv_rule_simped (f g : W → 𝒟'(X,Y))
+    (hf : DistribDifferentiable f) (hg : DistribDifferentiable g) :
+    parDistribRevDeriv (fun w => f w + g w)
+    =
+    fun w =>
+      let ydf := parDistribRevDeriv f w
+      let ydg := parDistribRevDeriv g w
+      ydf + ydg := by
+  funext w; ext φ; simp[parDistribRevDeriv, parDistribRevDeriv]
   sorry_proof

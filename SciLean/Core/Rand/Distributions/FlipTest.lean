@@ -23,6 +23,12 @@ def test_mean (θ : R) := (test θ).mean
     unfold test
     simp[rand_push_E,flip.E]
 
+def test_mean_simped (θ : R) := (test θ).mean
+  rewrite_by
+    unfold test
+    simp[rand_push_E]
+    simp[flip.E]
+
 
 #eval print_mean_variance (test 0.5) 1000 s!" of {test_mean 0.5}"
 #eval print_mean_variance (test 0.7) 1000 s!" of {test_mean 0.7}"

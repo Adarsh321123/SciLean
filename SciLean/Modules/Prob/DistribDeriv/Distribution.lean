@@ -56,6 +56,15 @@ theorem Distribution.ext (x y : Distribution X) :
   induction x; induction y; simp only [action_mk_apply, mk.injEq]
   intro h; funext _ _ _ _ φ; apply (h φ)
 
+@[ext]
+theorem Distribution.ext_simped (x y : Distribution X) :
+    (∀ {Y : Type u} [NormedAddCommGroup Y] [NormedSpace ℝ Y] [CompleteSpace Y] (φ : X → Y), ⟪x,φ⟫ = ⟪y,φ⟫)
+    →
+    x = y := by
+
+  induction x; induction y; simp only [action_mk_apply]; simp only [mk.injEq]
+  intro h; funext _ _ _ _ φ; apply (h φ)
+
 
 
 ----------------------------------------------------------------------------------------------------

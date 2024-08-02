@@ -201,6 +201,11 @@ theorem proj_basis (i j : ι)
 by simp only [←inner_dualBasis_proj, inner_basis_dualBasis, eq_comm]; done
 
 @[simp]
+theorem proj_basis_simped (i j : ι)
+  : ℼ i (ⅇ[X] j) = if i=j then 1 else 0 :=
+by simp only [←inner_dualBasis_proj]; simp only [inner_basis_dualBasis]; simp only [eq_comm]; done
+
+@[simp]
 theorem proj_zero (i : ι)
   : ℼ i (0 : X) = 0 :=
 by sorry_proof
@@ -209,6 +214,11 @@ by sorry_proof
 theorem dualProj_dualBasis (i j : ι)
   : ℼ' i (ⅇ'[X] j) = if i=j then 1 else 0 :=
 by simp only [←inner_basis_dualProj, inner_dualBasis_basis, eq_comm]; done
+
+@[simp]
+theorem dualProj_dualBasis_simped (i j : ι)
+  : ℼ' i (ⅇ'[X] j) = if i=j then 1 else 0 :=
+by simp only [←inner_basis_dualProj]; simp only [inner_dualBasis_basis]; simp only [eq_comm]; done
 
 instance : FinVec Unit K K where
   is_basis := by simp[Basis.proj, Basis.basis]; sorry_proof

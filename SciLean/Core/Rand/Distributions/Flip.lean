@@ -54,9 +54,19 @@ theorem flip.integral (θ : R) (f : Bool → X) :
     ∫' x, f x ∂(flip θ).ℙ = θ • f true + (1-θ) • f false := by
   simp [rand_simp,flip.measure]; sorry_proof
 
+@[rand_simp,simp, ftrans_simp]
+theorem flip.integral_simped (θ : R) (f : Bool → X) :
+    ∫' x, f x ∂(flip θ).ℙ = θ • f true + (1-θ) • f false := by
+  simp [rand_simp]
+
 theorem flip.E (θ : R) (f : Bool → X) :
     (flip θ).𝔼 f = θ • f true + (1-θ) • f false := by
   simp only [𝔼,flip.integral]
+
+theorem flip.E_simped (θ : R) (f : Bool → X) :
+    (flip θ).𝔼 f = θ • f true + (1-θ) • f false := by
+  simp only [𝔼]
+  simp only [flip.integral]
 
 theorem add_as_flip_E {x y : X} (θ : R) (h : θ ∈ Set.Ioo 0 1) :
     x + y = (flip θ).𝔼 (fun b => if b then θ⁻¹ • x else (1-θ)⁻¹ • y) := by

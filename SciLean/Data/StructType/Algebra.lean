@@ -381,12 +381,34 @@ by
   . apply structExt (I:=J); simp [ZeroStruct.structProj_zero]
 
 @[simp, ftrans_simp]
+theorem oneHot_inl_simped (i : I) (xi : EI i)
+  : (oneHot (X:=E×F) (I:=I⊕J) (.inl i) xi)
+    =
+    (oneHot i xi, 0) :=
+by
+  simp[oneHot]
+  constructor
+  . congr; funext; congr; funext h; subst h; rfl
+  . apply structExt (I:=J); simp [ZeroStruct.structProj_zero]
+
+@[simp, ftrans_simp]
 theorem oneHot_inr (j : J) (xj : FJ j)
   : (oneHot (X:=E×F) (I:=I⊕J) (.inr j) xj)
     =
     (0, oneHot j xj) :=
 by
   simp[oneHot, structMake]
+  constructor
+  . apply structExt (I:=I); simp [ZeroStruct.structProj_zero]
+  . congr; funext; congr; funext h; subst h; rfl
+
+@[simp, ftrans_simp]
+theorem oneHot_inr_simped (j : J) (xj : FJ j)
+  : (oneHot (X:=E×F) (I:=I⊕J) (.inr j) xj)
+    =
+    (0, oneHot j xj) :=
+by
+  simp[oneHot]
   constructor
   . apply structExt (I:=I); simp [ZeroStruct.structProj_zero]
   . congr; funext; congr; funext h; subst h; rfl

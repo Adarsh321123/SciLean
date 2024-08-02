@@ -74,12 +74,35 @@ theorem bind_pure (f : X → FDRand Y) (x dx : X) :
   . simp (disch:=sorry) only [rand_simp]
   . simp only [rand_simp]
 
+-- @[rand_simp,simp]
+theorem bind_pure_simped (f : X → FDRand Y) (x dx : X) :
+    (fdpure x dx).bind f
+    =
+    ⟨(f x).val, randDeriv (fun x' => (f x').val) x dx + (f x).dval⟩ := by
+
+  simp only [bind]
+  simp only [fdpure]
+  apply ext
+  . simp (disch:=sorry) only [rand_simp]
+  . simp only [rand_simp]
+
 
 @[rand_simp,simp]
 theorem bind_pure_zero (f : X → FDRand Y) (x : X) :
     (fdpure x 0).bind f = f x := by
 
   simp only [bind,fdpure]
+  apply ext
+  . simp (disch:=sorry) only [rand_simp]
+  . simp only [rand_simp]
+
+
+@[rand_simp,simp]
+theorem bind_pure_zero_simped (f : X → FDRand Y) (x : X) :
+    (fdpure x 0).bind f = f x := by
+
+  simp only [bind]
+  simp only [fdpure]
   apply ext
   . simp (disch:=sorry) only [rand_simp]
   . simp only [rand_simp]
@@ -154,6 +177,15 @@ theorem FDRand_mk_zero_fdE (x : Rand X) (φ : X → X) :
   apply testFunctionExtension_ext
   intro _ _
   simp [rand_simp,zero_smul]
+
+@[simp,rand_push_E]
+theorem FDRand_mk_zero_fdE_simped (x : Rand X) (φ : X → X) :
+    (FDRand.mk x 0).fdE φ = (x.E φ, (0 : X)) := by
+  simp [fdE]
+  simp [DRand.dE]
+  apply testFunctionExtension_ext
+  intro _ _
+  simp [rand_simp]
 
 theorem FDRand_mk_fdE (x : Rand X) (dx : DRand X) (φ : X → Y) :
     (FDRand.mk x dx).fdE φ = (x.E φ, dx.dE φ) := by rfl

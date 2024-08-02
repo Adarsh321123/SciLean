@@ -112,12 +112,35 @@ theorem dpure_dE (x dx : X) (φ : X → Y) :
   intro φ y; dsimp;
   simp (disch:=sorry) [fderiv_smul]
 
+@[rand_simp,simp]
+theorem dpure_dE_simped (x dx : X) (φ : X → Y) :
+    (dpure x dx).dE φ = fderiv ℝ φ x dx := by
+
+  simp only [bindRD, dE]
+  simp only [dpure, rand_simp]
+
+  apply testFunctionExtension_ext
+  intro φ y; dsimp;
+  simp (disch:=sorry) [fderiv_smul]
+
 
 @[rand_simp,simp]
 theorem bindRD_dE (x : Rand X) (f : X → DRand Y) (φ : Y → Z) :
     (x.bindRD f).dE φ = x.E (fun x' => (f x').dE φ) := by
 
   simp only [bindRD,dE,rand_simp,E]
+
+  apply testFunctionExtension_ext
+  intro φ y
+  simp only [testFunctionExtension_test_function]
+  sorry -- just linearity of integral
+
+@[rand_simp,simp]
+theorem bindRD_dE_simped (x : Rand X) (f : X → DRand Y) (φ : Y → Z) :
+    (x.bindRD f).dE φ = x.E (fun x' => (f x').dE φ) := by
+
+  simp only [bindRD, dE]
+  simp only [rand_simp, E]
 
   apply testFunctionExtension_ext
   intro φ y
@@ -153,6 +176,18 @@ theorem bindDR_pure (x : DRand X) (f : X → Y) (φ : Y → Z) :
   intro φ y; symm; dsimp
   rw[testFunctionExtension_test_function]
 
+@[rand_simp, simp]
+theorem bindDR_pure_simped (x : DRand X) (f : X → Y) (φ : Y → Z) :
+    (x.bindDR (fun x' => pure (f x'))).dE φ
+    =
+    x.dE (fun x' => φ (f x')) := by
+
+  simp only [bindDR]
+  simp only [dE]
+  simp only [rand_simp]
+  apply testFunctionExtension_ext
+  intro φ y; symm; dsimp
+  rw[testFunctionExtension_test_function]
 
 @[rand_simp, simp]
 theorem pure_bindRD (x : X) (f : X → DRand Y) :

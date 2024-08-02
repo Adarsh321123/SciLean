@@ -181,6 +181,34 @@ theorem pull_E_nat_recOn (x₀ : C 0) (r : (n : Nat) → Rand (D n))
     rw[Rand.swap_bind]
 
 
+@[rand_pull_E]
+theorem pull_E_nat_recOn_simped (x₀ : C 0) (r : (n : Nat) → Rand (D n))
+    (f : (n : ℕ) → C n → D n → (C (n+1))) (hf : ∀ n d, IsAffineMap ℝ (f n · d)) :
+    Nat.recOn  n
+      x₀
+      (fun n x => (r n).𝔼 (f n x))
+    =
+    (Nat.recOn (motive:=fun n => Rand (C n)) n
+      (pure x₀)
+      (fun n x => do
+        let x' ← x
+        let y' ← r n
+        pure (f n x' y'))).mean := by
+  induction n
+  case zero => simp[mean]
+  case succ n hn =>
+    simp[hn]
+    simp[mean]
+    conv => simp[rand_pull_E];simp[map]
+    conv =>
+      lhs
+      enter[1,2,x',1]
+      unfold mean
+      simp[pull_E_affine (f:=(f n · x'))]
+    conv =>
+      simp[rand_pull_E]
+    rw[Rand.swap_bind]
+
 end Nat
 
 section List
@@ -210,6 +238,36 @@ theorem pull_E_list_recOn (l : List α) (x₀ : C [])
   case cons _ head tail hn =>
     simp[hn,mean]
     conv => simp[rand_pull_E,map]
+    conv =>
+      lhs
+      enter[1,2,x',1]
+      unfold mean
+      simp[pull_E_affine (f:=(f head tail · x'))]
+    conv =>
+      simp[rand_pull_E]
+    rw[Rand.swap_bind]
+
+@[rand_pull_E]
+theorem pull_E_list_recOn_simped (l : List α) (x₀ : C [])
+    (r : (head : α) → (tail : List α) → Rand (D (head::tail)))
+    (f : (head : α) → (tail : List α) → C tail → D (head :: tail) → (C (head :: tail)))
+    (hf : ∀ head tail d, IsAffineMap ℝ (f head tail · d)) :
+    List.recOn l
+      x₀
+      (fun head tail x => (r head tail).𝔼 (f head tail x))
+    =
+    (List.recOn (motive:=fun l => Rand (C l)) l
+      (pure x₀)
+      (fun head tail x => do
+        let x' ← x
+        let y' ← r head tail
+        pure (f head tail x' y'))).mean := by
+  induction l
+  case nil => simp[mean]
+  case cons _ head tail hn =>
+    simp[hn]
+    simp[mean]
+    conv => simp[rand_pull_E];simp[map]
     conv =>
       lhs
       enter[1,2,x',1]

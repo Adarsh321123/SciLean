@@ -109,7 +109,7 @@ by
   funext mx; simp[broadcast, BroadcastType.equiv]
 
 @[fun_trans]
-theorem let_rule_rewritten
+theorem let_rule_rewritten_simped
   (g : X → Y) (f : X → Y → Z)
   : broadcast tag R ι (fun x => let y := g x; f x y)
     =
@@ -122,7 +122,7 @@ by
           =
           fun x => (fun (xy : X×Y) => f xy.1 xy.2) ((fun x' => (x', g x')) x) by rfl,
           comp_rule _ _]
-  funext mx; simp[broadcast, BroadcastType.equiv]
+  funext mx; simp[broadcast]; simp [BroadcastType.equiv]
 
 @[fun_trans]
 theorem apply_rule (j : κ)
@@ -134,6 +134,16 @@ by
   simp[broadcastIntro, BroadcastType.equiv]
 
 @[fun_trans]
+theorem apply_rule_simped (j : κ)
+  : broadcast tag R ι (fun (x : (j : κ) → E j) => x j)
+    =
+    fun (mx : (j : κ ) → ME j) => mx j :=
+by
+  unfold broadcast
+  simp [broadcastIntro]
+  simp [BroadcastType.equiv]
+
+@[fun_trans]
 theorem pi_rule
   (f : X → (j : κ) → E j)
   : broadcast tag R ι (fun x j => f x j)
@@ -143,6 +153,16 @@ by
   funext mx j
   simp[broadcast,BroadcastType.equiv]
 
+@[fun_trans]
+theorem pi_rule_simped
+  (f : X → (j : κ) → E j)
+  : broadcast tag R ι (fun x j => f x j)
+    =
+    fun mx j => (broadcast tag R ι (f · j) mx) :=
+by
+  funext mx j
+  simp [broadcast]
+  simp [BroadcastType.equiv]
 
 end Rules
 
@@ -184,6 +204,17 @@ theorem Prod.mk.arg_fstsnd.broadcast_rule
 by
   funext mx; simp[broadcast, BroadcastType.equiv]
 
+@[fun_trans]
+theorem Prod.mk.arg_fstsnd.broadcast_rule_simped
+  (g : X → Y)
+  (f : X → Z)
+  : broadcast tag R ι (fun x => (g x, f x))
+    =
+    fun (mx : MX) => (broadcast tag R ι g mx,
+                      broadcast tag R ι f mx) :=
+by
+  funext mx; simp[broadcast]; simp[BroadcastType.equiv]
+
 
 @[fun_trans]
 theorem Prod.fst.arg_self.broadcast_rule
@@ -194,6 +225,15 @@ theorem Prod.fst.arg_self.broadcast_rule
 by
   funext mx; simp[broadcast, BroadcastType.equiv]
 
+@[fun_trans]
+theorem Prod.fst.arg_self.broadcast_rule_simped
+  (f : X → Y×Z)
+  : broadcast tag R ι (fun x => (f x).1)
+    =
+    fun mx => (broadcast tag R ι f mx).1 :=
+by
+  funext mx; simp[broadcast]; simp[BroadcastType.equiv]
+
 
 @[fun_trans]
 theorem Prod.snd.arg_self.broadcast_rule
@@ -203,6 +243,15 @@ theorem Prod.snd.arg_self.broadcast_rule
     fun mx => (broadcast tag R ι f mx).2 :=
 by
   funext mx; simp[broadcast, BroadcastType.equiv]
+
+@[fun_trans]
+theorem Prod.snd.arg_self.broadcast_rule_simped
+  (f : X → Y×Z)
+  : broadcast tag R ι (fun x => (f x).2)
+    =
+    fun mx => (broadcast tag R ι f mx).2 :=
+by
+  funext mx; simp[broadcast]; simp[BroadcastType.equiv]
 
 
 

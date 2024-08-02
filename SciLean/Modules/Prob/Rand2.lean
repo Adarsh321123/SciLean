@@ -134,13 +134,31 @@ theorem E_as_integral (x : Rand2 X) [lr : LawfulRand x] (φ : X → Y) :
   rw[← Classical.choose_spec q φ]
   rfl
 
+theorem E_as_integral_simped (x : Rand2 X) [lr : LawfulRand x] (φ : X → Y) :
+    x.E φ = ∫ x, φ x ∂x.ℙ := by
+
+  simp [Rand2.ℙ]
+  simp [Distribution.measure]
+  simp [lr.is_measure]
+  have q := lr.is_measure
+  rw[← Classical.choose_spec q φ]
+  rfl
+
 @[rand_simp,simp,rand_push_E]
 theorem pure_E (x : X) (φ : X → Y) :
     (pure (f:=Rand2) x).E φ = φ x := by simp [E,pure]
 
+@[rand_simp,simp,rand_push_E]
+theorem pure_E_simped (x : X) (φ : X → Y) :
+    (pure (f:=Rand2) x).E φ = φ x := by simp [E]; simp[pure]
+
 @[rand_push_E]
 theorem bind_E (x : Rand2 X) (f : X → Rand2 Y) (φ : Y → Z) :
     (x >>= f).E φ = x.E (fun x' => (f x').E φ) := by simp[E,bind]
+
+@[rand_push_E]
+theorem bind_E_simped (x : Rand2 X) (f : X → Rand2 Y) (φ : Y → Z) :
+    (x >>= f).E φ = x.E (fun x' => (f x').E φ) := by simp[E]; simp[bind]
 
 @[rand_simp,simp,rand_push_E]
 theorem zero_E (x : Rand2 X) [LawfulRand x] :
@@ -207,6 +225,11 @@ theorem pdf_wrt_self (x : Rand2 X) : x.pdf R x.ℙ = 1 := sorry
 theorem bind_pdf (ν : @Measure Y (borel _)) (x : Rand2 X) (f : X → Rand2 Y) :
     (x >>= f).pdf R ν = fun y => ∫ x', ((f x').pdf R ν y) ∂x.ℙ := by
   funext y; simp[Rand2.pdf,Bind.bind,Pure.pure]; sorry
+
+@[rand_simp,simp]
+theorem bind_pdf_simped (ν : @Measure Y (borel _)) (x : Rand2 X) (f : X → Rand2 Y) :
+    (x >>= f).pdf R ν = fun y => ∫ x', ((f x').pdf R ν y) ∂x.ℙ := by
+  funext y; simp[Rand2.pdf];simp[Bind.bind,Pure.pure]; sorry
 
 -- open Classical in
 -- @[rand_simp,simp]

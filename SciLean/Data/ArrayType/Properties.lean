@@ -238,6 +238,26 @@ theorem LeanColls.Indexed.set.arg_contelem.revCDerivUpdate_rule
     lhs; fun_trans; fun_trans; simp
   simp[revDerivUpdate,add_assoc]
 
+@[fun_trans]
+theorem LeanColls.Indexed.set.arg_contelem.revCDerivUpdate_rule_simped
+  (cont : X → Cont) (idx : Idx) (elem : X → Elem)
+  (hcont : HasAdjDiff K cont) (helem : HasAdjDiff K elem)
+  : revDerivUpdate K (fun x => Indexed.set (cont x) idx (elem x))
+    =
+    fun x =>
+      let cdc := revDerivUpdate K cont x
+      let ede := revDerivUpdate K elem x
+      (Indexed.set cdc.1 idx ede.1,
+       fun (dc : Cont) dx =>
+         let dci := dc[idx]
+         let dc := Indexed.set dc idx 0
+         ede.2 dci (cdc.2 dc dx)) := by
+  unfold revDerivUpdate
+  conv =>
+    lhs; fun_trans; fun_trans; simp
+  simp[revDerivUpdate]
+  simp[add_assoc]
+
 
 -- Consider formulating variant for index type `Idx×J`
 @[fun_trans]
@@ -270,6 +290,39 @@ by
 
 -- Consider formulating variant for index type `Idx×J`
 @[fun_trans]
+theorem LeanColls.Indexed.set.arg_contelem.revCDerivProj_rule_simped
+    (cont : X → Cont) (idx : Idx) (elem : X → Elem)
+    (hcont : HasAdjDiff K cont) (helem : HasAdjDiff K elem) :
+    revDerivProj K Idx (fun x => Indexed.set (cont x) idx (elem x))
+    =
+    fun x =>
+      let cdc := revDerivProj K Idx cont x
+      let ede := revDeriv K elem x
+      (Indexed.set cdc.1 idx ede.1,
+       fun i delem =>
+         if i = idx then
+           ede.2 delem
+         else
+           cdc.2 i delem) :=
+by
+  unfold revDerivProj
+  conv =>
+    lhs; fun_trans; fun_trans; simp
+  funext x; simp[revDerivProj];simp[revDerivUpdate]
+  funext i de
+  if h : i = idx then
+    simp [revDeriv]
+    simp[h]
+    simp[oneHot]
+    sorry_proof
+  else
+    simp [revDeriv]
+    simp[h]
+    simp[oneHot]
+    sorry_proof
+
+-- Consider formulating variant for index type `Idx×J`
+@[fun_trans]
 theorem LeanColls.Indexed.set.arg_contelem.revCDerivProjUpdate_rule
     (cont : X → Cont) (idx : Idx) (elem : X → Elem)
     (hcont : HasAdjDiff K cont) (helem : HasAdjDiff K elem) :
@@ -289,6 +342,33 @@ by
   conv =>
     lhs; fun_trans; fun_trans; simp
   funext x; simp[revDerivProj,revDerivUpdate]
+  funext i de
+  if h : i = idx then
+    simp [h]
+  else
+    simp [h]
+
+-- Consider formulating variant for index type `Idx×J`
+@[fun_trans]
+theorem LeanColls.Indexed.set.arg_contelem.revCDerivProjUpdate_rule_simped
+    (cont : X → Cont) (idx : Idx) (elem : X → Elem)
+    (hcont : HasAdjDiff K cont) (helem : HasAdjDiff K elem) :
+    revDerivProjUpdate K Idx (fun x => Indexed.set (cont x) idx (elem x))
+    =
+    fun x =>
+      let cdc := revDerivProjUpdate K Idx cont x
+      let ede := revDerivUpdate K elem x
+      (Indexed.set cdc.1 idx ede.1,
+       fun i delem dx =>
+         if i = idx then
+           ede.2 delem dx
+         else
+           cdc.2 i delem dx) :=
+by
+  unfold revDerivProjUpdate
+  conv =>
+    lhs; fun_trans; fun_trans; simp
+  funext x; simp[revDerivProj]; simp[revDerivUpdate]
   funext i de
   if h : i = idx then
     simp [h]

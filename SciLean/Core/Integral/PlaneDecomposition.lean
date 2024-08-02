@@ -129,6 +129,23 @@ theorem parametric_inverse_affine {n} (f : X → R) (c : R) (hf : IsAffineMap R 
   have : ‖(<∂ f 0).2 1‖₂[R] ≠ 0 := sorry_proof
   field_simp
 
+open IndexType in
+@[gtrans]
+theorem parametric_inverse_affine_simped {n} (f : X → R) (c : R) (hf : IsAffineMap R f)
+    (hn : n + 1 = card ι := by first | assumption | infer_var) :
+    let u  := ∇ f 0
+    let dec := planeDecomposition (R:=R) u hn
+    ParametricInverseAt f c
+      (I:=Unit)
+      (p:=fun _ y t => dec (t,y))
+      (g:=fun _ _ => (c - f 0) / ‖u‖₂)
+      (dom := fun _ => ⊤) := by
+
+  simp[ParametricInverseAt]
+  have h : f = fun x => ⟪(∇ f 0), x⟫ + f 0 := sorry_proof -- use the fact that `f` is affine here
+  rw[h]; fun_trans [scalarGradient,planeDecomposition_orthogonal_dir]
+  have : ‖(<∂ f 0).2 1‖₂[R] ≠ 0 := sorry_proof
+  field_simp
 
 open IndexType in
 theorem parametric_inverse_affine' (f : X → R) (c : R) (hf : IsAffineMap R f) :
@@ -146,7 +163,21 @@ theorem parametric_inverse_affine' (f : X → R) (c : R) (hf : IsAffineMap R f) 
   have : ‖(<∂ f 0).2 1‖₂[R] ≠ 0 := sorry_proof
   field_simp
 
+open IndexType in
+theorem parametric_inverse_affine'_simped (f : X → R) (c : R) (hf : IsAffineMap R f) :
+    let u  := ∇ f 0
+    let dec := planeDecomposition (n:=card ι - 1) (R:=R) u sorry_proof
+    ParametricInverseAt f c
+      (I:=Unit)
+      (p:=fun _ y t => dec (t,y))
+      (g:=fun _ _ => (c - f 0) / ‖u‖₂)
+      (dom := fun _ => ⊤) := by
 
+  simp[ParametricInverseAt]
+  have h : f = fun x => ⟪(∇ f 0), x⟫ + f 0 := sorry_proof -- use the fact that `f` is affine here
+  rw[h]; fun_trans [scalarGradient,planeDecomposition_orthogonal_dir]
+  have : ‖(<∂ f 0).2 1‖₂[R] ≠ 0 := sorry_proof
+  field_simp
 
 
 

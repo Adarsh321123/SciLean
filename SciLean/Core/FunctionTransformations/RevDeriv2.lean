@@ -363,6 +363,36 @@ by
     simp[revDeriv2, oneHot, structMake]; funext dyi dw; fun_trans;
     sorry_proof
 
+theorem Prod.mk.arg_fstsnd.revDeriv2Proj_rule {ι κ : Type} [EnumType ι] [EnumType κ]
+  {YI : ι → Type} [StructType Y ι YI] [∀ i, SemiInnerProductSpace K (YI i)]
+  {ZI : κ → Type} [StructType Z κ ZI] [∀ i, SemiInnerProductSpace K (ZI i)]
+  (g : W → X → Y) (f : W → X → Z)
+  (hg : HasAdjDiff K (fun (w,x) => g w x)) (hf : HasAdjDiff K (fun (w,x) => f w x))
+  : revDeriv2Proj K (ι⊕κ) (fun w x => (g w x, f w x))
+    =
+    fun w x i =>
+      match i with
+      | .inl j =>
+        let ydg := revDeriv2Proj K ι g w x j
+        (ydg.1, fun dy dw => ydg.2 dy dw)
+      | .inr j =>
+        let zdf := revDeriv2Proj K κ f w x j
+        (zdf.1, fun dz dw => zdf.2 dz dw) :=
+by
+  simp at hf hg
+  unfold revDeriv2Proj revDeriv2
+  fun_trans
+  funext w x i
+  cases i
+  case inl =>
+    simp[revDeriv2, oneHot, structMake]; funext dyi dw;
+    ext <;> (simp; congr; funext i; congr; funext h; subst h; rfl)
+  case inr =>
+    simp[revDeriv2]
+    simp[oneHot]
+    simp[structMake]; funext dyi dw; fun_trans;
+    sorry_proof
+
 
 -- Prod.fst --------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -452,6 +482,27 @@ by
   . simp[add_assoc,add_comm]
   . simp[add_assoc,add_comm]
 
+theorem HAdd.hAdd.arg_a0a1.revDeriv2_rule_simped
+  (f g : W → X → Y)
+  (hf : HasAdjDiff K (fun (w,x) => f w x)) (hg : HasAdjDiff K (fun (w,x) => g w x))
+  : revDeriv2 K (fun w x => f w x + g w x)
+    =
+    fun w x =>
+      let adf := revDeriv2 K f w x
+      let bdg := revDeriv2 K (fun wx (_ : Unit) => g wx.1 wx.2) (w,x) ()
+      (adf.1 + bdg.1,
+       fun dy dw =>
+         let dwx := adf.2 dy dw
+         let dwx := bdg.2 dy dwx
+         dwx.1) :=
+by
+  simp at hf hg
+  unfold revDeriv2
+  fun_trans
+  funext w x; simp; funext dy dw
+  ext
+  . simp[add_assoc]
+  . simp[add_assoc]
 
 theorem HAdd.hAdd.arg_a0a1.revDeriv2Proj_rule {ι} [EnumType ι]
   {YI : ι → Type} [StructType Y ι YI] [∀ i, SemiInnerProductSpace K (YI i)]
@@ -501,6 +552,28 @@ by
   . rw[sub_eq_add_zero_sub]; simp[add_assoc,neg_pull]
   . simp[add_assoc,neg_pull]; rw[sub_eq_add_zero_sub]; simp
 
+theorem HSub.hSub.arg_a0a1.revDeriv2_rule_simped
+  (f g : W → X → Y)
+  (hf : HasAdjDiff K (fun (w,x) => f w x)) (hg : HasAdjDiff K (fun (w,x) => g w x))
+  : revDeriv2 K (fun w x => f w x - g w x)
+    =
+    fun w x =>
+      let adf := revDeriv2 K f w x
+      let bdg := revDeriv2 K (fun wx (_ : Unit) => g wx.1 wx.2) (w,x) ()
+      (adf.1 - bdg.1,
+       fun dy dw =>
+         let dwx := adf.2 dy dw
+         let dwx := bdg.2 (-dy) dwx
+         dwx.1) :=
+by
+  simp at hf hg
+  unfold revDeriv2
+  fun_trans
+  funext w x; simp; funext dy dw
+  ext
+  . rw[sub_eq_add_zero_sub]; simp[add_assoc];simp[neg_pull]
+  . simp[add_assoc];simp[neg_pull]; rw[sub_eq_add_zero_sub]; simp
+
 
 
 theorem HSub.hSub.arg_a0a1.revDeriv2Proj_rule {ι} [EnumType ι]
@@ -522,6 +595,26 @@ by
   unfold revDeriv2Proj
   simp only [HSub.hSub.arg_a0a1.revDeriv2_rule _ _ hf hg]
   funext w x i; simp[revDeriv2,neg_pull]
+
+theorem HSub.hSub.arg_a0a1.revDeriv2Proj_rule_simped {ι} [EnumType ι]
+  {YI : ι → Type} [StructType Y ι YI] [∀ i, SemiInnerProductSpace K (YI i)]
+  (f g : W → X → Y)
+  (hf : HasAdjDiff K (fun (w,x) => f w x)) (hg : HasAdjDiff K (fun (w,x) => g w x))
+  : revDeriv2Proj K ι (fun w x => f w x - g w x)
+    =
+    fun w x i =>
+      let adf := revDeriv2Proj K ι f w x i
+      let bdg := revDeriv2Proj K ι (fun xy (_ : Unit) => g xy.1 xy.2) (w,x) () i
+      (adf.1 - bdg.1,
+       fun dy dw =>
+         let dwx := adf.2 dy dw
+         let dwx := bdg.2 (-dy) dwx
+         dwx.1) :=
+by
+  simp at hf hg
+  unfold revDeriv2Proj
+  simp only [HSub.hSub.arg_a0a1.revDeriv2_rule _ _ hf hg]
+  funext w x i; simp[revDeriv2];simp[neg_pull]
 
 
 -- Neg.neg ---------------------------------------------------------------------

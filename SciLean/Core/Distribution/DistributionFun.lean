@@ -54,6 +54,14 @@ theorem DistributionFun.ext (x y : DistributionFun R X Y) :
 
   induction x; induction y; simp only [action_mk_apply, mk.injEq]; aesop
 
+@[ext]
+theorem DistributionFun.ext_simped (x y : DistributionFun R X Y) :
+    (∀ (φ : 𝒟 X), ⟪x,φ⟫ = ⟪y,φ⟫)
+    →
+    x = y := by
+
+  induction x; induction y; simp only [action_mk_apply]; simp only [mk.injEq]; aesop
+
 
 ----------------------------------------------------------------------------------------------------
 -- Algebra -----------------------------------------------------------------------------------------

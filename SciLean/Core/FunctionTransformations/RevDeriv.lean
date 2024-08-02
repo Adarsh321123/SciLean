@@ -418,6 +418,19 @@ by
   simp[revDerivProjUpdate, revDerivProj.id_rule]
 
 @[fun_trans]
+theorem id_rule_simped
+  : revDerivProjUpdate K I (fun x : E => x)
+    =
+    fun x =>
+      (x,
+       fun i de dx =>
+         structModify i (fun ei => ei + de) dx) :=
+by
+  funext x
+  simp[revDerivProjUpdate]
+  simp[revDerivProj.id_rule]
+
+@[fun_trans]
 theorem const_rule (x : E)
   : revDerivProjUpdate K I (fun _ : Y => x)
     =
@@ -445,6 +458,24 @@ by
   rfl
 
 @[fun_trans]
+theorem comp_rule_simped
+  (f : Y → E) (g : X → Y)
+  (hf : HasAdjDiff K f) (hg : HasAdjDiff K g)
+  : revDerivProjUpdate K I (fun x => f (g x))
+    =
+    fun x =>
+      let ydg' := revDerivUpdate K g x
+      let zdf' := revDerivProj K I f ydg'.1
+      (zdf'.1,
+       fun i de dx =>
+         ydg'.2 (zdf'.2 i de) dx) :=
+by
+  funext x
+  simp[revDerivProjUpdate]
+  simp[revDerivProj.comp_rule _ _ _ _ hf hg]
+  rfl
+
+@[fun_trans]
 theorem let_rule
   (f : X → Y → E) (g : X → Y)
   (hf : HasAdjDiff K (fun (x,y) => f x y)) (hg : HasAdjDiff K g)
@@ -460,6 +491,24 @@ theorem let_rule
 by
   unfold revDerivProjUpdate
   simp [revDerivProj.let_rule _ _ _ _ hf hg,add_assoc,add_comm,revDerivUpdate]
+
+@[fun_trans]
+theorem let_rule_simped
+  (f : X → Y → E) (g : X → Y)
+  (hf : HasAdjDiff K (fun (x,y) => f x y)) (hg : HasAdjDiff K g)
+  : revDerivProjUpdate K I (fun x => let y := g x; f x y)
+    =
+    fun x =>
+      let ydg' := revDerivUpdate K g x
+      let zdf' := revDerivProjUpdate K I (fun (x,y) => f x y) (x,ydg'.1)
+      (zdf'.1,
+       fun i dei dx =>
+         let dxy := zdf'.2 i dei (dx,0)
+         ydg'.2 dxy.2 dxy.1) :=
+by
+  unfold revDerivProjUpdate
+  simp [revDerivProj.let_rule _ _ _ _ hf hg]
+  simp [add_assoc,add_comm,revDerivUpdate]
 
 @[fun_trans]
 theorem apply_rule [DecidableEq I] (i : ι)
@@ -485,6 +534,30 @@ by
     simp[h,h',Function.update]
 
 @[fun_trans]
+theorem apply_rule_simped [DecidableEq I] (i : ι)
+  : revDerivProjUpdate K I (fun (f : ι → E) => f i)
+    =
+    fun f =>
+      (f i, fun j dxj df i' =>
+        if i=i' then
+          structModify j (fun xj => xj + dxj) (df i')
+        else
+          df i') :=
+by
+  funext x;
+  unfold revDerivProjUpdate
+  fun_trans
+  funext j dxj f i'
+  apply structExt (I:=I)
+  intro j'
+  if h :i'=i then
+    subst h; simp
+  else
+    have h' : i≠i' := by intro h''; simp[h''] at h
+    simp[h]
+    simp[h']
+
+@[fun_trans]
 theorem pi_rule
     (f :  X → ι → Y) (hf : ∀ i, HasAdjDiff K (f · i)) :
     (revDerivProjUpdate K Unit fun (x : X) (i : ι) => f x i)
@@ -500,6 +573,24 @@ by
   unfold revDerivProj
   funext x; simp; funext i de dx
   rw[revDeriv.pi_rule (hf:=by fun_prop)]; simp[oneHot,revDerivUpdate]
+  sorry_proof
+
+@[fun_trans]
+theorem pi_rule_simped
+    (f :  X → ι → Y) (hf : ∀ i, HasAdjDiff K (f · i)) :
+    (revDerivProjUpdate K Unit fun (x : X) (i : ι) => f x i)
+    =
+    fun x =>
+      let ydf := fun i => revDerivUpdate K (f · i) x
+      (fun i => (ydf i).1,
+       fun _ df dx =>
+         Fold.fold (IndexType.univ ι) (fun dx i => (ydf i).2 (df i) dx) dx) :=
+by
+  unfold revDerivProjUpdate
+  fun_trans
+  unfold revDerivProj
+  funext x; simp; funext i de dx
+  rw[revDeriv.pi_rule (hf:=by fun_prop)]; simp[oneHot]; simp[revDerivUpdate]
   sorry_proof
 
 
@@ -739,6 +830,21 @@ theorem HAdd.hAdd.arg_a0a1.revDerivUpdate_rule
   fun_trans; funext x; simp[add_assoc,revDerivUpdate]
 
 @[fun_trans]
+theorem HAdd.hAdd.arg_a0a1.revDerivUpdate_rule_simp
+    (f g : X → Y) (hf : HasAdjDiff K f) (hg : HasAdjDiff K g) :
+    (revDerivUpdate K fun x => f x + g x)
+    =
+    fun x =>
+      let ydf := revDerivUpdate K f x
+      let ydg := revDerivUpdate K g x
+      (ydf.1 + ydg.1,
+       fun dy dx =>
+         let dx := ydf.2 dy dx
+         ydg.2 dy dx) := by
+  unfold revDerivUpdate
+  fun_trans; funext x; simp[add_assoc]; simp[revDerivUpdate]
+
+@[fun_trans]
 theorem HAdd.hAdd.arg_a0a1.revDerivProj_rule
     (f g : X → Y') (hf : HasAdjDiff K f) (hg : HasAdjDiff K g) :
     (revDerivProj K Yi fun x => f x + g x)
@@ -768,6 +874,21 @@ theorem HAdd.hAdd.arg_a0a1.revDerivProjUpdate_rule
   unfold revDerivProjUpdate
   fun_trans; simp[revDerivProjUpdate, add_assoc]
 
+@[fun_trans]
+theorem HAdd.hAdd.arg_a0a1.revDerivProjUpdate_rule_simped
+    (f g : X → Y') (hf : HasAdjDiff K f) (hg : HasAdjDiff K g) :
+    (revDerivProjUpdate K Yi fun x => f x + g x)
+    =
+    fun x =>
+      let ydf := revDerivProjUpdate K Yi f x
+      let ydg := revDerivProjUpdate K Yi g x
+      (ydf.1 + ydg.1,
+       fun i dy dx =>
+         let dx := ydf.2 i dy dx
+         ydg.2 i dy dx) := by
+  unfold revDerivProjUpdate
+  fun_trans; simp[revDerivProjUpdate]; simp[add_assoc]
+
 
 -- HSub.hSub -------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -790,6 +911,23 @@ theorem HSub.hSub.arg_a0a1.revDeriv_rule
   funext x; simp; funext dy; simp only [neg_pull, ← sub_eq_add_neg]
 
 @[fun_trans]
+theorem HSub.hSub.arg_a0a1.revDeriv_rule_simped
+    (f g : X → Y) (hf : HasAdjDiff K f) (hg : HasAdjDiff K g) :
+    (revDeriv K fun x => f x - g x)
+    =
+    fun x =>
+      let ydf := revDeriv K f x
+      let ydg := revDerivUpdate K g x
+      (ydf.1 - ydg.1,
+       fun dy =>
+         let dx := ydf.2 dy
+         let dy' := -dy
+         ydg.2 dy' dx) := by
+  unfold revDerivUpdate; unfold revDeriv;
+  fun_trans
+  funext x; simp; funext dy; simp only [neg_pull]; simp only [← sub_eq_add_neg]
+
+@[fun_trans]
 theorem HSub.hSub.arg_a0a1.revDerivUpdate_rule
     (f g : X → Y) (hf : HasAdjDiff K f) (hg : HasAdjDiff K g) :
     (revDerivUpdate K fun x => f x - g x)
@@ -804,6 +942,22 @@ theorem HSub.hSub.arg_a0a1.revDerivUpdate_rule
          ydg.2 dy' dx) := by
   unfold revDerivUpdate
   fun_trans; funext x; simp[add_assoc,revDerivUpdate]
+
+@[fun_trans]
+theorem HSub.hSub.arg_a0a1.revDerivUpdate_rule_simped
+    (f g : X → Y) (hf : HasAdjDiff K f) (hg : HasAdjDiff K g) :
+    (revDerivUpdate K fun x => f x - g x)
+    =
+    fun x =>
+      let ydf := revDerivUpdate K f x
+      let ydg := revDerivUpdate K g x
+      (ydf.1 - ydg.1,
+       fun dy dx =>
+         let dx := ydf.2 dy dx
+         let dy' := -dy
+         ydg.2 dy' dx) := by
+  unfold revDerivUpdate
+  fun_trans; funext x; simp[add_assoc]; simp [revDerivUpdate]
 
 @[fun_trans]
 theorem HSub.hSub.arg_a0a1.revDerivProj_rule
@@ -821,6 +975,22 @@ theorem HSub.hSub.arg_a0a1.revDerivProj_rule
   unfold revDerivProjUpdate; unfold revDerivProj
   fun_trans; simp[revDerivUpdate, neg_pull,revDeriv]
 
+@[fun_trans]
+theorem HSub.hSub.arg_a0a1.revDerivProj_rule_simped
+    (f g : X → Y') (hf : HasAdjDiff K f) (hg : HasAdjDiff K g) :
+    (revDerivProj K Yi fun x => f x - g x)
+    =
+    fun x =>
+      let ydf := revDerivProj K Yi f x
+      let ydg := revDerivProjUpdate K Yi g x
+      (ydf.1 - ydg.1,
+       fun i dy =>
+         let dx := ydf.2 i dy
+         let dy' := -dy
+         (ydg.2 i dy' dx)) := by
+  unfold revDerivProjUpdate; unfold revDerivProj
+  fun_trans; simp[revDerivUpdate]; simp[neg_pull]
+
 
 @[fun_trans]
 theorem HSub.hSub.arg_a0a1.revDerivProjUpdate_rule
@@ -837,6 +1007,22 @@ theorem HSub.hSub.arg_a0a1.revDerivProjUpdate_rule
          ydg.2 i dy' dx) := by
   unfold revDerivProjUpdate
   fun_trans; simp[revDerivProjUpdate, neg_pull, revDerivProj, revDeriv,add_assoc]
+
+@[fun_trans]
+theorem HSub.hSub.arg_a0a1.revDerivProjUpdate_rule_simped
+    (f g : X → Y') (hf : HasAdjDiff K f) (hg : HasAdjDiff K g) :
+    (revDerivProjUpdate K Yi fun x => f x - g x)
+    =
+    fun x =>
+      let ydf := revDerivProjUpdate K Yi f x
+      let ydg := revDerivProjUpdate K Yi g x
+      (ydf.1 - ydg.1,
+       fun i dy dx =>
+         let dx := ydf.2 i dy dx
+         let dy' := -dy
+         ydg.2 i dy' dx) := by
+  unfold revDerivProjUpdate
+  fun_trans; simp[revDerivProjUpdate]; simp[neg_pull, revDerivProj, revDeriv,add_assoc]
 
 
 -- Neg.neg ---------------------------------------------------------------------
@@ -966,6 +1152,22 @@ theorem HMul.hMul.arg_a0a1.revDerivProjUpdate_rule
   unfold revDerivProjUpdate
   fun_trans; simp[revDerivUpdate,add_assoc]
 
+@[fun_trans]
+theorem HMul.hMul.arg_a0a1.revDerivProjUpdate_rule_simped
+    (f g : X → K) (hf : HasAdjDiff K f) (hg : HasAdjDiff K g) :
+    (revDerivProjUpdate K Unit fun x => f x * g x)
+    =
+    fun x =>
+      let ydf := revDerivUpdate K f x
+      let zdg := revDerivUpdate K g x
+      (ydf.1 * zdg.1,
+       fun _ dy dx =>
+         let dy₁ := (conj zdg.1)*dy
+         let dy₂ := (conj ydf.1)*dy
+         let dx := zdg.2 dy₂ dx
+         ydf.2 dy₁ dx) := by
+  unfold revDerivProjUpdate
+  fun_trans; simp[revDerivUpdate]; simp[add_assoc]
 
 -- SMul.smul -------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -1044,6 +1246,24 @@ theorem HSMul.hSMul.arg_a0a1.revDerivProjUpdate_rule
   fun_trans; simp[revDerivUpdate,add_assoc,smul_pull]
   simp only [smul_pull,revDerivProj,revDeriv]
 
+@[fun_trans]
+theorem HSMul.hSMul.arg_a0a1.revDerivProjUpdate_rule_simped
+    (f : X → K) (g : X → Y) (hf : HasAdjDiff K f) (hg : HasAdjDiff K g) :
+    (revDerivProjUpdate K Yi fun x => f x • g x)
+    =
+    fun x =>
+      let ydf := revDerivUpdate K f x
+      let zdg := revDerivProjUpdate K Yi g x
+      (ydf.1 • zdg.1,
+       fun i (dy : YI i) dx =>
+         let dk := inner (structProj zdg.1 i) dy
+         let dy' := conj ydf.1•dy
+         let dx := zdg.2 i dy' dx
+         ydf.2 dk dx) := by
+  unfold revDerivProjUpdate
+  fun_trans; simp[revDerivUpdate];simp[add_assoc]
+  simp only [smul_pull,revDerivProj,revDeriv]
+
 end SMulOnSemiHilbert
 
 
@@ -1063,6 +1283,21 @@ theorem HDiv.hDiv.arg_a0a1.revDeriv_rule
   unfold revDeriv; simp
   fun_trans (disch:=assumption)
   simp[revDerivUpdate,smul_push,neg_pull,revDeriv,smul_add,smul_sub, ← sub_eq_add_neg]
+
+@[fun_trans]
+theorem HDiv.hDiv.arg_a0a1.revDeriv_rule_simped
+    (f g : X → K) (hf : HasAdjDiff K f) (hg : HasAdjDiff K g) (hx : ∀ x, g x ≠ 0) :
+    (revDeriv K fun x => f x / g x)
+    =
+    fun x =>
+      let ydf := revDeriv K f x
+      let zdg := revDerivUpdate K g x
+      (ydf.1 / zdg.1,
+       fun dx' => (1 / (conj zdg.1)^2) • (zdg.2 (-conj ydf.1 • dx') (conj zdg.1 • ydf.2 dx'))) := by
+  unfold revDeriv; simp
+  fun_trans (disch:=assumption)
+  simp[revDerivUpdate]
+  simp[smul_push,neg_pull,revDeriv,smul_add,smul_sub, ← sub_eq_add_neg]
 
 @[fun_trans]
 theorem HDiv.hDiv.arg_a0a1.revDerivUpdate_rule
@@ -1099,6 +1334,20 @@ by
   fun_trans (disch:=assumption); simp[oneHot, structMake]
 
 @[fun_trans]
+theorem HDiv.hDiv.arg_a0a1.revDerivProj_rule_simped
+    (f g : X → K) (hf : HasAdjDiff K f) (hg : HasAdjDiff K g) (hx : ∀ x, g x ≠ 0) :
+    (revDerivProj K Unit fun x => f x / g x)
+    =
+    fun x =>
+      let ydf := revDeriv K f x
+      let zdg := revDerivUpdate K g x
+      (ydf.1 / zdg.1,
+       fun _ dx' => (1 / (conj zdg.1)^2) • (zdg.2 (-conj ydf.1 • dx') (conj zdg.1 • ydf.2 dx'))) :=
+by
+  unfold revDerivProj
+  fun_trans (disch:=assumption); simp[oneHot]
+
+@[fun_trans]
 theorem HDiv.hDiv.arg_a0a1.revDerivProjUpdate_rule
     (f g : X → K) (hf : HasAdjDiff K f) (hg : HasAdjDiff K g) (hx : ∀ x, g x ≠ 0) :
     (revDerivProjUpdate K Unit fun x => f x / g x)
@@ -1117,6 +1366,30 @@ by
   fun_trans (disch:=assumption)
   simp[revDerivUpdate,revDeriv,add_assoc,neg_pull,mul_assoc,smul_push]
 
+@[fun_trans]
+theorem HDiv.hDiv.arg_a0a1.revDerivProjUpdate_rule_simped
+    (f g : X → K) (hf : HasAdjDiff K f) (hg : HasAdjDiff K g) (hx : ∀ x, g x ≠ 0) :
+    (revDerivProjUpdate K Unit fun x => f x / g x)
+    =
+    fun x =>
+      let ydf := revDerivUpdate K f x
+      let zdg := revDerivUpdate K g x
+      (ydf.1 / zdg.1,
+       fun _ dx' dx =>
+         let c := (1 / (conj zdg.1)^2)
+         let a := -(c * conj ydf.1)
+         let b := c * conj zdg.1
+         ((zdg.2 (a • dx') (ydf.2 (b • dx') dx)))) :=
+by
+  unfold revDerivProjUpdate
+  fun_trans (disch:=assumption)
+  simp[revDerivUpdate]
+  simp[revDeriv]
+  simp[add_assoc]
+  simp[neg_pull]
+  simp[mul_assoc]
+  simp[smul_push]
+
 
 -- HPow.hPow -------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -1134,6 +1407,20 @@ def HPow.hPow.arg_a0.revDeriv_rule
 by
   funext x
   unfold revDeriv; simp; funext dx; fun_trans; simp[smul_push,smul_smul]; ring_nf
+
+@[fun_trans]
+def HPow.hPow.arg_a0.revDeriv_rule_simped
+    (f : X → K) (n : Nat) (hf : HasAdjDiff K f) :
+    revDeriv K (fun x => f x ^ n)
+    =
+    fun x =>
+      let ydf := revDeriv K f x
+      let y' := (n : K) * (conj ydf.1 ^ (n-1))
+      (ydf.1 ^ n,
+       fun dx' => ydf.2 (y' * dx')) :=
+by
+  funext x
+  unfold revDeriv; simp; funext dx; fun_trans; simp[smul_push]; ring_nf
 
 @[fun_trans]
 def HPow.hPow.arg_a0.revDerivUpdate_rule
@@ -1158,6 +1445,17 @@ def HPow.hPow.arg_a0.revDerivProj_rule
       let y' := (n : K) * (conj ydf.1 ^ (n-1))
       (ydf.1 ^ n, fun _ dx' => ydf.2 (y' * dx')) := by
   unfold revDerivProj; fun_trans; simp[oneHot,structMake]
+
+@[fun_trans]
+def HPow.hPow.arg_a0.revDerivProj_rule_simped
+    (f : X → K) (n : Nat) (hf : HasAdjDiff K f) :
+    revDerivProj K Unit (fun x => f x ^ n)
+    =
+    fun x =>
+      let ydf := revDeriv K f x
+      let y' := (n : K) * (conj ydf.1 ^ (n-1))
+      (ydf.1 ^ n, fun _ dx' => ydf.2 (y' * dx')) := by
+  unfold revDerivProj; fun_trans; simp[oneHot]
 
 @[fun_trans]
 def HPow.hPow.arg_a0.revDerivProjUpdate_rule
@@ -1404,6 +1702,21 @@ theorem Inner.inner.arg_a0a1.revDerivProj_rule
   fun_trans; simp[oneHot, structMake]
 
 @[fun_trans]
+theorem Inner.inner.arg_a0a1.revDerivProj_rule_simped
+    (f : X → Y) (g : X → Y) (hf : HasAdjDiff R f) (hg : HasAdjDiff R g) :
+    (revDerivProj R Unit fun x => ⟪f x, g x⟫[R])
+    =
+    fun x =>
+      let y₁df := revDeriv R f x
+      let y₂dg := revDerivUpdate R g x
+      (⟪y₁df.1, y₂dg.1⟫[R],
+       fun _ dr =>
+         y₂dg.2 (dr • y₁df.1) (y₁df.2 (dr • y₂dg.1))) := by
+  funext
+  simp[revDerivProj]
+  fun_trans; simp[oneHot]
+
+@[fun_trans]
 theorem Inner.inner.arg_a0a1.revDerivProjUpdate_rule
     (f : X → Y) (g : X → Y) (hf : HasAdjDiff R f) (hg : HasAdjDiff R g) :
     (revDerivProjUpdate R Unit fun x => ⟪f x, g x⟫[R])
@@ -1418,6 +1731,21 @@ theorem Inner.inner.arg_a0a1.revDerivProjUpdate_rule
   simp[revDerivProjUpdate]
   fun_trans; simp[revDerivUpdate,add_assoc]
 
+@[fun_trans]
+theorem Inner.inner.arg_a0a1.revDerivProjUpdate_rule_simped
+    (f : X → Y) (g : X → Y) (hf : HasAdjDiff R f) (hg : HasAdjDiff R g) :
+    (revDerivProjUpdate R Unit fun x => ⟪f x, g x⟫[R])
+    =
+    fun x =>
+      let y₁df := revDerivUpdate R f x
+      let y₂dg := revDerivUpdate R g x
+      (⟪y₁df.1, y₂dg.1⟫[R],
+       fun _ dr dx =>
+         y₂dg.2 (dr • y₁df.1) (y₁df.2 (dr • y₂dg.1) dx)) := by
+  funext
+  simp[revDerivProjUpdate]
+  fun_trans; simp[revDerivUpdate]
+  simp[add_assoc]
 
 -- norm2 -----------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -1451,6 +1779,21 @@ theorem SciLean.Norm2.norm2.arg_a0.revDerivUpdate_rule
   fun_trans; simp[revDeriv,smul_pull]
 
 @[fun_trans]
+theorem SciLean.Norm2.norm2.arg_a0.revDerivUpdate_rule_simped
+    (f : X → Y) (hf : HasAdjDiff R f) :
+    (revDerivUpdate R fun x => ‖f x‖₂²[R])
+    =
+    fun x =>
+      let ydf := revDerivUpdate R f x
+      let ynorm2 := ‖ydf.1‖₂²[R]
+      (ynorm2,
+       fun dr dx =>
+          ydf.2 (((2:R)*dr)•ydf.1) dx) := by
+  funext x; simp[revDerivUpdate]
+  fun_trans; simp[revDeriv]
+  simp[smul_pull]
+
+@[fun_trans]
 theorem SciLean.Norm2.norm2.arg_a0.revDerivProj_rule
     (f : X → Y) (hf : HasAdjDiff R f) :
     (revDerivProj R Unit fun x => ‖f x‖₂²[R])
@@ -1463,6 +1806,20 @@ theorem SciLean.Norm2.norm2.arg_a0.revDerivProj_rule
          ((2:R) * dr) • ydf.2 ydf.1) := by
   funext x; simp[revDerivProj]
   fun_trans; simp[oneHot,structMake]
+
+@[fun_trans]
+theorem SciLean.Norm2.norm2.arg_a0.revDerivProj_rule_simped
+    (f : X → Y) (hf : HasAdjDiff R f) :
+    (revDerivProj R Unit fun x => ‖f x‖₂²[R])
+    =
+    fun x =>
+      let ydf := revDeriv R f x
+      let ynorm2 := ‖ydf.1‖₂²[R]
+      (ynorm2,
+       fun _ dr =>
+         ((2:R) * dr) • ydf.2 ydf.1) := by
+  funext x; simp[revDerivProj]
+  fun_trans; simp[oneHot]
 
 @[fun_trans]
 theorem SciLean.Norm2.norm2.arg_a0.revDerivProjUpdate_rule
@@ -1511,6 +1868,21 @@ theorem SciLean.norm₂.arg_x.revDerivUpdate_rule_at
   simp[revDeriv,smul_pull]
 
 @[fun_trans]
+theorem SciLean.norm₂.arg_x.revDerivUpdate_rule_at_simped
+    (f : X → Y) (x : X) (hf : HasAdjDiffAt R f x) (hx : f x≠0) :
+    (revDerivUpdate R (fun x => ‖f x‖₂[R]) x)
+    =
+    let ydf := revDerivUpdate R f x
+    let ynorm := ‖ydf.1‖₂[R]
+    (ynorm,
+     fun dr dx =>
+       ydf.2 ((ynorm⁻¹ * dr)•ydf.1) dx) := by
+  simp[revDerivUpdate]
+  fun_trans (disch:=assumption) only
+  simp[revDeriv]
+  simp[smul_pull]
+
+@[fun_trans]
 theorem SciLean.norm₂.arg_x.revDerivProj_rule_at
     (f : X → Y) (x : X) (hf : HasAdjDiffAt R f x) (hx : f x≠0) :
     (revDerivProj R Unit (fun x => ‖f x‖₂[R]) x)
@@ -1522,6 +1894,19 @@ theorem SciLean.norm₂.arg_x.revDerivProj_rule_at
        (ynorm⁻¹ * dr) • ydf.2 ydf.1):= by
   simp[revDerivProj]
   fun_trans (disch:=assumption) only; simp[oneHot, structMake]
+
+@[fun_trans]
+theorem SciLean.norm₂.arg_x.revDerivProj_rule_at_simped
+    (f : X → Y) (x : X) (hf : HasAdjDiffAt R f x) (hx : f x≠0) :
+    (revDerivProj R Unit (fun x => ‖f x‖₂[R]) x)
+    =
+    let ydf := revDeriv R f x
+    let ynorm := ‖ydf.1‖₂[R]
+    (ynorm,
+     fun _ dr =>
+       (ynorm⁻¹ * dr) • ydf.2 ydf.1):= by
+  simp[revDerivProj]
+  fun_trans (disch:=assumption) only; simp[oneHot]
 
 @[fun_trans]
 theorem SciLean.norm₂.arg_x.revDerivProjUpdate_rule_at
@@ -1574,6 +1959,24 @@ by
   simp[revDeriv,smul_pull]
 
 @[fun_trans]
+theorem SciLean.norm₂.arg_x.revDerivUpdate_rule_simped
+    (f : X → Y) (hf : HasAdjDiff R f) (hx : ∀ x, f x≠0) :
+    (revDerivUpdate R (fun x => ‖f x‖₂[R]))
+    =
+    fun x =>
+      let ydf := revDerivUpdate R f x
+      let ynorm := ‖ydf.1‖₂[R]
+      (ynorm,
+       fun dr dx =>
+         ydf.2 ((ynorm⁻¹ * dr)•ydf.1) dx):=
+by
+  unfold revDerivUpdate
+  funext x; simp
+  fun_trans (disch:=assumption) only
+  simp[revDeriv]
+  simp[smul_pull]
+
+@[fun_trans]
 theorem SciLean.norm₂.arg_x.revDerivProj_rule
     (f : X → Y) (hf : HasAdjDiff R f) (hx : ∀ x, f x≠0) :
     (revDerivProj R Unit (fun x => ‖f x‖₂[R]))
@@ -1588,6 +1991,22 @@ theorem SciLean.norm₂.arg_x.revDerivProj_rule
   funext x; simp
   fun_trans (disch:=assumption) only
   simp[oneHot, structMake]
+
+@[fun_trans]
+theorem SciLean.norm₂.arg_x.revDerivProj_rule_simped
+    (f : X → Y) (hf : HasAdjDiff R f) (hx : ∀ x, f x≠0) :
+    (revDerivProj R Unit (fun x => ‖f x‖₂[R]))
+    =
+    fun x =>
+      let ydf := revDeriv R f x
+      let ynorm := ‖ydf.1‖₂[R]
+      (ynorm,
+       fun _ dr =>
+         (ynorm⁻¹ * dr) • ydf.2 ydf.1) := by
+  unfold revDerivProj
+  funext x; simp
+  fun_trans (disch:=assumption) only
+  simp[oneHot]
 
 @[fun_trans]
 theorem SciLean.norm₂.arg_x.revDerivProjUpdate_rule

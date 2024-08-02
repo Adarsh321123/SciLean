@@ -221,6 +221,12 @@ theorem zero_E (x : Rand X)  :
     x.E (fun _ => (0 :Y )) = 0 := by
   simp only [E,integral_zero]
 
+@[rand_simp,simp,rand_push_E]
+theorem zero_E_simped (x : Rand X)  :
+    x.E (fun _ => (0 :Y )) = 0 := by
+  simp only [E]
+  simp only [integral_zero]
+
 @[rand_simp,simp]
 theorem add_E (x : Rand X) (φ ψ : X → Y)  :
     x.E (fun x => φ x + ψ x) = x.E φ + x.E ψ := by
@@ -274,9 +280,19 @@ theorem bind_rpdf (ν : Measure Y) (x : Rand X) (f : X → Rand Y) :
   funext y; simp[Rand.pdf,Rand.bind,Rand.pure]; sorry
 
 @[rand_simp,simp]
+theorem bind_rpdf_simped (ν : Measure Y) (x : Rand X) (f : X → Rand Y) :
+    (x.bind f).rpdf ν = fun y => ∫ x', ((f x').rpdf ν y) ∂x.μ := by
+  funext y; simp[Rand.pdf]
+
+@[rand_simp,simp]
 theorem bind_pdf (ν : Measure Y) (x : Rand X) (f : X → Rand Y) :
     (x.bind f).pdf R ν = fun y => ∫ x', ((f x').pdf R ν y) ∂x.μ := by
   funext y; simp[Rand.pdf,Rand.bind,Rand.pure]; sorry
+
+@[rand_simp,simp]
+theorem bind_pdf_simped (ν : Measure Y) (x : Rand X) (f : X → Rand Y) :
+    (x.bind f).pdf R ν = fun y => ∫ x', ((f x').pdf R ν y) ∂x.μ := by
+  funext y; simp[Rand.pdf];simp[Rand.bind,Rand.pure]; sorry
 
 open Classical in
 @[rand_simp,simp]

@@ -58,6 +58,20 @@ theorem randDeriv_const (a : Rand α) :
   simp only [randDeriv, fderiv_const, Pi.zero_apply,
              ContinuousLinearMap.zero_apply, DRand.action_zero]
 
+@[rand_simp,simp]
+theorem randDeriv_const_simped (a : Rand α) :
+    randDeriv (fun _ : W => a)
+    =
+    fun w dw => 0 := by
+
+  funext w dw
+  apply DRand.ext
+  intro φ
+  simp only [randDeriv]
+  simp only [fderiv_const]
+  simp only [Pi.zero_apply]
+  simp only [ContinuousLinearMap.zero_apply]
+  simp only [DRand.action_zero]
 
 @[rand_simp,simp]
 theorem randDeriv_comp (f : Y → Rand Z) (g : X → Y)
@@ -90,6 +104,22 @@ theorem Rand.pure.arg_x.randDeriv_rule (x : W → X) (hx : Differentiable ℝ x)
   rw[h]
   simp only [ContinuousLinearMap.coe_comp', Function.comp_apply]
 
+@[rand_simp,simp]
+theorem Rand.pure.arg_x.randDeriv_rule_simped (x : W → X) (hx : Differentiable ℝ x) :
+    randDeriv (fun w => Rand.pure (x w))
+    =
+    fun w dw => dpure (x w) (fderiv ℝ x w dw) := by
+
+  funext w dw
+  apply DRand.ext; intro φ
+  simp (disch:=first | assumption | sorry) only
+    [randDeriv, pure, Erased.out_mk, integral_dirac', dpure]
+  have h := @fderiv.comp ℝ _ _ _ _ _ _ _ _ _ _ x w φ sorry (hx w)
+  unfold Function.comp at h
+  rw[h]
+  simp only [ContinuousLinearMap.coe_comp']
+  simp only [Function.comp_apply]
+
 
 @[rand_simp,simp]
 theorem Rand.bind.arg_xf.randDeriv_rule (x : W → Rand α) (f : W → α → Rand β)
@@ -106,6 +136,24 @@ theorem Rand.bind.arg_xf.randDeriv_rule (x : W → Rand α) (f : W → α → Ra
   simp (disch:=sorry) only [integral_bind]
   sorry
 
+@[rand_simp,simp]
+theorem Rand.bind.arg_xf.randDeriv_rule_simped (x : W → Rand α) (f : W → α → Rand β)
+    (hx : RandDifferentiable x) (hf : ∀ x, RandDifferentiable (f · x)) :
+    randDeriv (fun w => (x w).bind (f w ·))
+    =
+    fun w dw => (randDeriv x w dw).bindDR (f w · )
+                +
+                (x w).bindRD (fun x => randDeriv (f · x) w dw) := by
+
+  funext w dw
+  apply DRand.ext; intro φ
+  simp only [randDeriv]
+  simp only [rand_simp]
+  simp only [DRand.bindDR]
+  simp only [bindRD]
+  simp only [E]
+  simp (disch:=sorry) only [integral_bind]
+  sorry
 
 ----------------------------------------------------------------------------------------------------
 -- Other Rules -------------------------------------------------------------------------------------

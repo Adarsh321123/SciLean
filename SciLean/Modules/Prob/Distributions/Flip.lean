@@ -67,6 +67,12 @@ theorem flip_expectedValue (θ : ℝ) (f : Bool → X) :
 
   simp[Rand.E,rand_simp]
 
+
+theorem flip_expectedValue_simped (θ : ℝ) (f : Bool → X) :
+    (flip θ).E f = θ • f true + (1-θ) • f false := by
+
+  simp[Rand.E]
+
 theorem dflip_expectedValueChange (f : Bool → X) :
     dflip.dE f = f true - f false := by
 
@@ -74,6 +80,13 @@ theorem dflip_expectedValueChange (f : Bool → X) :
   apply testFunctionExtension_ext
   intro φ y; simp [sub_smul]
 
+theorem dflip_expectedValueChange_simped (f : Bool → X) :
+    dflip.dE f = f true - f false := by
+
+  simp [DRand.dE]
+  simp[dflip]
+  apply testFunctionExtension_ext
+  intro φ y; simp [sub_smul]
 
 @[simp,rand_AD]
 theorem flip.arg_x.randDeriv_rule (x : W → R) (hf : Differentiable ℝ x) :
@@ -87,6 +100,21 @@ theorem flip.arg_x.randDeriv_rule (x : W → R) (hf : Differentiable ℝ x) :
   funext w dw
   simp [randDeriv]
   apply DRand.ext; intro φ; simp[dflip,rand_simp]
+  sorry -- just differentiation and ring
+
+
+@[simp,rand_AD]
+theorem flip.arg_x.randDeriv_rule_simped (x : W → R) (hf : Differentiable ℝ x) :
+    randDeriv (fun w => flip (x w))
+    =
+    fun w dw =>
+      let dx' := (fderiv ℝ x w dw)
+      dx' • dflip := by
+
+  simp (disch:=sorry) [rand_simp]
+  funext w dw
+  simp [randDeriv]
+  apply DRand.ext; intro φ; simp[dflip];simp[rand_simp]
   sorry -- just differentiation and ring
 
 

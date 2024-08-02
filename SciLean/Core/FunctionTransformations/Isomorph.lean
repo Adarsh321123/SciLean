@@ -61,6 +61,13 @@ theorem pi_rule (f : α → β → γ) :
   funext x'; simp[isomorph, IsomorphicType.equiv]
 
 
+@[fun_trans]
+theorem pi_rule_simped (f : α → β → γ) :
+    isomorph tag (fun x y => f x y)
+    =
+    fun x' => isomorph tag (f ((IsomorphicType.equiv tag).symm x')) := by
+  funext x'; simp[isomorph]; simp[IsomorphicType.equiv]
+
 
 ----------------------------------------------------------------------------------------------------
 

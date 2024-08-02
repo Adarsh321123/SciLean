@@ -44,6 +44,39 @@ namespace SciLean
       simp only [adjointDifferential]
       unfold conv1d; simp
 
+  def conv1d_simped {N n} (x : Fin N → ℝ) (w : Fin n → ℝ) (b : ℝ) : Fin N → ℝ :=
+     λ i => ∑ i', w i' * x (i.shift i') + b
+  argument x [Fact (N≠0)] [Fact (n≠0)]
+    isSmooth,
+    hasAdjDiff,
+    adjDiff by
+      simp only [adjointDifferential]
+      simp only [conv1d]
+      simp[hold]
+      simp[sum_into_lambda]
+      enter[x]
+      rw [sum_swap]
+      simp only [kron_smul_assoc]
+      simp only [sum_of_kron_2]
+      simp
+  argument w [Fact (N≠0)] [Fact (n≠0)]
+    isSmooth,
+    hasAdjDiff,
+    adjDiff by
+      simp only [adjointDifferential]
+      simp only [conv1d]
+      simp[hold]
+      simp[sum_into_lambda]
+      simp only [kron_smul_assoc]
+      simp only [sum_of_kron_2]
+      simp
+  argument b [Fact (N≠0)] [Fact (n≠0)]
+    isSmooth,
+    hasAdjDiff,
+    adjDiff by
+      simp only [adjointDifferential]
+      unfold conv1d; simp
+
 
   def conv2d {N M n m} (x : Fin N → Fin M → ℝ) (w : Fin n → Fin m → ℝ) (b : ℝ) : Fin N → Fin M → ℝ :=
      λ i j => ∑ i' j', w i' j' * x (i.shift i') (j.shift j') + b
@@ -87,6 +120,55 @@ namespace SciLean
       simp only [adjointDifferential,conv2d]
       simp
 
+
+  def conv2d_simped {N M n m} (x : Fin N → Fin M → ℝ) (w : Fin n → Fin m → ℝ) (b : ℝ) : Fin N → Fin M → ℝ :=
+     λ i j => ∑ i' j', w i' j' * x (i.shift i') (j.shift j') + b
+  argument x [Fact (N≠0)] [Fact (M≠0)]
+    isSmooth,
+    hasAdjDiff,
+    adjDiff by
+      simp only [adjointDifferential]
+      simp only [conv2d]
+      simp[sum_into_lambda]
+      enter[i,j]
+      conv =>
+        rw [sum_swap]; enter[1]; ext
+        rw [sum_swap]; enter[1]; ext
+        rw [sum_swap]; enter[1]; ext
+        simp only [kron_smul_assoc]
+        simp only [sum_of_kron_2]
+        simp
+      conv =>
+        rw [sum_swap]; enter[1]; ext
+        rw [sum_swap]; enter[1]; ext
+        simp only [kron_smul_assoc]
+        simp only [sum_of_kron_2]
+        simp
+      simp
+  argument w [Fact (n≠0)] [Fact (m≠0)]
+    isSmooth,
+    hasAdjDiff,
+    adjDiff by
+      simp only [adjointDifferential]
+      simp only [conv2d]
+      simp[hold, sum_into_lambda]
+      enter [i',j']
+      conv =>
+        enter [1]; ext; enter [1]; ext
+        rw[sum_swap]
+        simp only [kron_smul_assoc]
+        simp only [sum_of_kron_2]
+        simp
+        simp only [kron_smul_assoc]
+        simp only [sum_of_kron_2]
+      simp
+  argument b [Fact (N≠0)] [Fact (n≠0)]
+    isSmooth,
+    hasAdjDiff,
+    adjDiff by
+      simp only [adjointDifferential]
+      simp only [conv2d]
+      simp
 
 
 

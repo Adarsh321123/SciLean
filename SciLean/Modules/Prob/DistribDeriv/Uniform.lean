@@ -71,6 +71,26 @@ theorem uniform.distribDeriv_comp
 
 
 @[simp]
+theorem uniform.distribDeriv_comp_simped
+    (a b : X → ℝ) (x dx : X) (φ : ℝ → W) (hab : a x ≠ b x)
+    (ha : DifferentiableAt ℝ a x) (hb : DifferentiableAt ℝ b x)
+    (hφa : ContinuousAt φ (a x)) (hφb : ContinuousAt φ (b x))
+    /- integrability condition on φ -/:
+    ⟪distribDeriv (fun x : X => uniform (a x) (b x)) x dx, φ⟫
+    =
+    let a' := a x
+    let da := fderiv ℝ a x dx
+    let b' := b x
+    let db := fderiv ℝ b x dx
+    ⟪duniform a' b' da db, φ⟫ := by
+
+  simp[uniform]
+  simp[duniform]
+  simp[bind,distribDeriv]
+  sorry
+
+
+@[simp]
 theorem uniform.bind.arg_xf.distribDeriv_rule
     (a b : X → ℝ) (f : X → ℝ → Distribution Z) (x dx) (φ : Z → W) (hab : a x ≠ b x)
     (ha : DifferentiableAt ℝ a x) (hb : DifferentiableAt ℝ b x)
@@ -89,6 +109,27 @@ theorem uniform.bind.arg_xf.distribDeriv_rule
   simp [distribDeriv, uniform, duniform, bind]
   sorry
 
+
+@[simp]
+theorem uniform.bind.arg_xf.distribDeriv_rule_simped
+    (a b : X → ℝ) (f : X → ℝ → Distribution Z) (x dx) (φ : Z → W) (hab : a x ≠ b x)
+    (ha : DifferentiableAt ℝ a x) (hb : DifferentiableAt ℝ b x)
+    -- TODO: weaken 'hf' such that we still need `ha` and `hb`
+    (hf : DifferentiableUnderIntegralAt (fun x y => ⟪f x y, φ⟫) (fun x' => volume.restrict (Set.uIcc (a x') (b x'))) x) :
+    ⟪distribDeriv (fun x' => (uniform (a x') (b x')) >>= (f x')) x dx, φ⟫
+    =
+    let a' := a x
+    let da := fderiv ℝ a x dx
+    let b' := b x
+    let db := fderiv ℝ b x dx
+    ⟪(duniform a' b' da db) >>= (f x ·), φ⟫
+    +
+    ⟪uniform a' b', fun y => ⟪distribDeriv (f · y) x dx, φ⟫⟫ := by
+
+  simp [distribDeriv]
+  simp [uniform]
+  simp [duniform, bind]
+  sorry
 
 @[simp]
 theorem uniform.distribFwdDeriv_comp

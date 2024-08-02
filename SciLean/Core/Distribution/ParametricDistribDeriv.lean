@@ -100,6 +100,15 @@ theorem dirac.arg_xy.DistribDiffrentiable_rule
   simp [action_dirac, dirac]
   fun_prop
 
+@[fun_prop]
+theorem dirac.arg_xy.DistribDiffrentiable_rule_simped
+    (x : W → X) (hx : CDifferentiable R x) :
+    DistribDifferentiable (R:=R) (fun w => dirac (x w))  := by
+  intro x
+  unfold DistribDifferentiableAt
+  intro φ hφ
+  simp [action_dirac]
+  fun_prop
 
 @[fun_trans]
 theorem dirac.arg_x.parDistribDeriv_rule
@@ -112,6 +121,20 @@ theorem dirac.arg_x.parDistribDeriv_rule
   funext w dw; ext φ
   unfold parDistribDeriv dirac diracDeriv
   simp [pure, fwdDeriv, DistribDifferentiableAt]
+  fun_trans
+
+@[fun_trans]
+theorem dirac.arg_x.parDistribDeriv_rule_simped
+    (x : W → X) (hx : CDifferentiable R x) :
+    parDistribDeriv (R:=R) (fun w => dirac (x w))
+    =
+    fun w dw =>
+      let xdx := fwdDeriv R x w dw
+      diracDeriv xdx.1 xdx.2 := by --= (dpure (R:=R) ydy.1 ydy.2) := by
+  funext w dw; ext φ
+  unfold parDistribDeriv dirac diracDeriv
+  simp [pure]
+  simp [fwdDeriv]
   fun_trans
 
 

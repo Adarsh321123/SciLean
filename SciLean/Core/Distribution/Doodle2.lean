@@ -94,6 +94,18 @@ def foo4 (t' : R) :=
     rand_pull_E
     simp (disch:=sorry) only [ftrans_simp]
 
+def foo4_simped (t' : R) :=
+  derive_random_approx
+    (∂ (t:=t'), ∫' (x : R) in Ioo 0 1, ∫' (y : R) in Ioo 0 1, if y ≤ t then x*y*t else x+y+t)
+  by
+    fun_trans (disch:=sorry) only [scalarGradient, scalarCDeriv]
+    simp only [ftrans_simp, toDistrib_pull,restrict_pull]
+    simp only [restrict_push, ftrans_simp,restrict_push]
+    simp (disch:=sorry) only [action_push, ftrans_simp, restrict_push]
+    simp only [distrib_eval,ftrans_simp]
+    rand_pull_E
+    simp (disch:=sorry) only [ftrans_simp]
+
 
 -- set_option profiler true in
 set_option trace.Meta.Tactic.fun_prop true in
@@ -108,6 +120,18 @@ def foo5 (t' : R) :=
     simp only [toDistrib_pull,restrict_pull]
     simp only [restrict_push]
     simp only [ftrans_simp,restrict_push]
+    simp (disch:=sorry) only [action_push, ftrans_simp, restrict_push]
+    simp only [distrib_eval,ftrans_simp]
+    rand_pull_E
+    simp (disch:=sorry) only [ftrans_simp]
+
+def foo5_simped (t' : R) :=
+  derive_random_approx
+    (∂ (t:=t'), ∫' (x : R) in Ioo 0 1, Scalar.sqrt (∫' (y : R) in Ioo 0 1, if y ≤ t then x*y*t else x+y+t))
+  by
+    fun_trans (disch:=sorry) only [scalarGradient, scalarCDeriv, fwdDeriv]
+    simp only [ftrans_simp, toDistrib_pull,restrict_pull]
+    simp only [restrict_push,ftrans_simp,restrict_push]
     simp (disch:=sorry) only [action_push, ftrans_simp, restrict_push]
     simp only [distrib_eval,ftrans_simp]
     rand_pull_E

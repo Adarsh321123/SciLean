@@ -62,6 +62,34 @@ theorem E_induction (x₀ : C 0) (r : (n : Nat) → Rand (D n)) (f : (n : ℕ) �
       rand_pull_E
     rw[swap_bind]
 
+@[rand_pull_E]
+theorem E_induction_simped (x₀ : C 0) (r : (n : Nat) → Rand (D n)) (f : (n : ℕ) → C n → D n → (C (n+1))) :
+    Nat.recOn (motive:=C) n
+      x₀
+      (fun n x => (r n).E (f n x))
+    =
+    (Nat.recOn (motive:=fun n => Rand (C n)) n
+      (pure x₀)
+      (fun n x =>
+        let x' ~ x;
+        let y' ~ r n;
+        pure (f n x' y'))).mean := by
+  induction n
+  case zero => simp[mean]
+  case succ n hn =>
+    simp[hn]
+    simp[mean]
+    conv => rand_pull_E
+    simp
+    conv =>
+      lhs
+      enter[1,2,x',1]
+      unfold mean
+      simp[push_to_E' (f:=(f n · x')) (hf:=by sorry)]
+    conv =>
+      rand_pull_E
+    rw[swap_bind]
+
 
 theorem add_as_flip_mean (θ : R) {x y : X} :
     x + y = (flip θ).E (fun b => if b then θ⁻¹ • x else (1-θ)⁻¹ • y) := sorry
@@ -83,6 +111,16 @@ def foo' (θ : R) (l : List R) (n : Nat) : Rand R :=
       rw[add_as_flip_mean θ]
     rw[E_induction]
 
+def foo'_simped (θ : R) (l : List R) (n : Nat) : Rand R :=
+  derive_random_approx
+    (foo l n)
+  by
+    induction n n' prev h
+    . simp[foo]
+    . simp[foo]
+      simp[h]
+      rw[add_as_flip_mean θ]
+    rw[E_induction]
 
 #eval print_mean_variance1 (foo' 0.5 [1.0,2,3,4] 4) 1000 ""
 

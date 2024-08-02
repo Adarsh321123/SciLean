@@ -88,6 +88,30 @@ theorem pure.bind.arg_xf.distribDeriv_rule
   rw[fderiv_uncurry (fun x y => ⟪f x y, φ⟫) (x, g x) _ hf]
   simp only [add_comm]
 
+@[simp]
+theorem pure.bind.arg_xf.distribDeriv_rule_simped
+    (g : X → Y) (f : X → Y → Distribution Z) (x dx) (φ : Z → W)
+    (hg : DifferentiableAt ℝ g x) (hf : DifferentiableAt ℝ (fun (x,y) => ⟪f x y, φ⟫) (x, g x)) :
+    ⟪distribDeriv (fun x' => (pure (g x')) >>= (f x')) x dx, φ⟫
+    =
+    let y := g x
+    let dy := fderiv ℝ g x dx
+    ⟪(pureDeriv y dy) >>= (f x ·), φ⟫
+    +
+    ⟪distribDeriv (f · y) x dx, φ⟫ := by
+
+  simp [bind]
+  simp [distribDeriv]
+  simp [pure]
+  simp [pureDeriv]
+  simp [action]
+  -- TODO: fix `ftrans` to apply this rule
+  have h := fderiv.comp_rule_at ℝ (fun (x,y) => ⟪f x y, φ⟫) (fun x => (x, g x)) x hf (by fprop)
+  dsimp at h
+  rw[h]; ftrans; dsimp
+  rw[fderiv_uncurry (fun x y => ⟪f x y, φ⟫) (x, g x) _ hf]
+  simp only [add_comm]
+
 
 @[simp]
 theorem pure.distribFwdDeriv_comp (f : X → Y) (x dx : X) (φ : Y → W×W)
