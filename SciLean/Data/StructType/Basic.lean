@@ -56,6 +56,10 @@ theorem _root_.SciLean.structExt (x x' : X) : (∀ i : I, structProj x i = struc
 by
   intro h; rw[← structMake_structProj (I:=I) x]; rw[← structMake_structProj (I:=I) x']; simp[h]
 
+theorem _root_.SciLean.structExt_rewritten (x x' : X) : (∀ i : I, structProj x i = structProj x' i) → x = x' :=
+by
+  intro h; rw[← structMake_structProj (I:=I) x, ← structMake_structProj (I:=I) x']; simp[h]
+
 
 --------------------------------------------------------------------------------
 -- Basic instances -------------------------------------------------------------

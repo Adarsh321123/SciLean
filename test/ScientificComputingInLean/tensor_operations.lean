@@ -190,6 +190,11 @@ def SciLean.DataArrayN.resize3 (x : Float^[I]) (a b c : Nat) (h : a*b*c = IndexT
   { data := x.data ,
     h_size := by simp[IndexType.card]; rw[← mul_assoc,←x.2,h] }
 
+def SciLean.DataArrayN.resize3_rewritten (x : Float^[I]) (a b c : Nat) (h : a*b*c = IndexType.card I) :
+    Float^[a,b,c] :=
+  { data := x.data ,
+    h_size := by simp[IndexType.card]; rw[← mul_assoc]; rw[←x.2]; rw[h] }
+
 def nnet := fun (w₁,b₁,w₂,b₂,w₃,b₃) (x : Float^[28,28]) =>
   x |>.resize3 1 28 28 (by decide)
     |> conv2d 1 (Fin 8) w₁ b₁

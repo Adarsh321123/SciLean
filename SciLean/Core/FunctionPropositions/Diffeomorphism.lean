@@ -278,6 +278,34 @@ by
   -- funext z
   -- simp[show f x (invFun (f x) z) = z from sorry_proof]
 
+-- Which rule is preferable? This one or the second one?
+-- Probably the second as it has Function.inv fully applied
+@[fun_trans]
+theorem Function.invFun.arg_f_a1.cderiv_rule_rewritten
+  (f : X → Y → Z)
+  (hf : ∀ x, Diffeomorphism K (f x))
+  (hf' : CDifferentiable K (fun xy : X×Y => f xy.1 xy.2))
+  : cderiv K (fun x z => invFun (f x) z)
+    =
+    fun x dx z =>
+      let y := invFun (f x) z
+      let dfdx_y := (cderiv K f x dx) y
+      let df'dy := cderiv K (invFun (f x)) (f x y) (dfdx_y)
+      (-df'dy)
+  :=
+by
+  funext x dx
+  have H : ((cderiv K (fun x => invFun (f x) ∘ (f x)) x dx) ∘ (invFun (f x)))
+           =
+           0 := by simp[invFun_comp (hf _).1.1]; fun_trans
+  rw[← sub_zero (cderiv K (fun x => Function.invFun (f x)) x dx), ← H]
+  fun_trans
+  sorry_proof
+  -- simp_rw[comp.arg_fg_a0.cderiv_rule (K:=K) (fun x => invFun (f x)) f (by fun_prop) (by fun_prop)]
+  -- simp[comp]
+  -- funext z
+  -- simp[show f x (invFun (f x) z) = z from sorry_proof]
+
 
 @[fun_trans]
 theorem Function.invFun.arg_f.cderiv_rule'
@@ -299,6 +327,30 @@ by
            0 := by simp[invFun_comp (hf _).1.1]; fun_trans
   rw[← sub_zero (cderiv K (fun x => Function.invFun (f x) z) x dx)]
   rw[← H]
+  sorry_proof
+  -- simp_rw[comp.arg_fg_a0.cderiv_rule (K:=K) (fun x => invFun (f x)) f (by fun_prop) (by fun_prop)]
+  -- simp[comp]
+  -- simp[show f x (invFun (f x) z) = z from sorry_proof]
+
+@[fun_trans]
+theorem Function.invFun.arg_f.cderiv_rule'_rewritten
+  (f : X → Y → Z) (z : Z)
+  (hf : ∀ x, Diffeomorphism K (f x))
+  (hf' : CDifferentiable K (fun xy : X×Y => f xy.1 xy.2))
+  : cderiv K (fun x => invFun (f x) z)
+    =
+    fun x dx =>
+      let y := invFun (f x) z
+      let dfdx_y := (cderiv K f x dx) y
+      let df'dy := cderiv K (invFun (f x)) (f x y) (dfdx_y)
+      (-df'dy)
+  :=
+by
+  funext x dx
+  have H : ((cderiv K (fun x => invFun (f x) ∘ (f x)) x dx) ∘ (invFun (f x)) <| z)
+           =
+           0 := by simp[invFun_comp (hf _).1.1]; fun_trans
+  rw[← sub_zero (cderiv K (fun x => Function.invFun (f x) z) x dx), ← H]
   sorry_proof
   -- simp_rw[comp.arg_fg_a0.cderiv_rule (K:=K) (fun x => invFun (f x)) f (by fun_prop) (by fun_prop)]
   -- simp[comp]

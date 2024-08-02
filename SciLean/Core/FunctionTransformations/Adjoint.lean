@@ -89,6 +89,23 @@ by
   rw[ContinuousLinearMap.adjoint_comp]
   ext dx; simp
 
+theorem comp_rule_rewritten
+  (f : Y → Z) (g : X → Y)
+  (hf : IsContinuousLinearMap K f) (hg : IsContinuousLinearMap K g)
+  : (fun x =>L[K] f (g x))†
+    =
+    fun z =>L[K]
+      let y := (fun y =>L[K] f y)† z
+      let x := (fun x =>L[K] g x)† y
+      x :=
+by
+  have h : (fun x =>L[K] f (g x))
+           =
+           (fun y =>L[K] f y).comp (fun x =>L[K] g x)
+         := by rfl
+  rw[h, ContinuousLinearMap.adjoint_comp]
+  ext dx; simp
+
 
 theorem let_rule
   (f : X → Y → Z) (g : X → Y)
@@ -111,6 +128,27 @@ by
           := by rw[prod_rule K (fun x => x) g (by fprop) hg]; simp[id_rule]
   rw[h']; rfl
 
+theorem let_rule_rewritten
+  (f : X → Y → Z) (g : X → Y)
+  (hf : IsContinuousLinearMap K (fun xy : X×Y => f xy.1 xy.2)) (hg : IsContinuousLinearMap K g)
+  : (fun x =>L[K] let y := g x; f x y)†
+    =
+    fun z =>L[K]
+      let xy := ((fun xy : X×₂Y =>L[K] f xy.1 xy.2)†) z
+      let x' := ((fun x =>L[K] g x)†) xy.2
+      xy.1 + x' :=
+by
+  have h : (fun x =>L[K] let y := g x; f x y)
+           =
+           (fun xy : X×₂Y =>L[K] f xy.1 xy.2).comp (fun x =>L[K] (x, g x))
+         := by rfl
+  rw[h]
+  rw[ContinuousLinearMap.adjoint_comp]
+  have h' : ((fun x =>L[K] (x, g x)) : X →L[K] X×₂Y)†
+            =
+            (fun (xy : X×₂Y) =>L[K] xy.1 + (fun x =>L[K] g x)† xy.2)
+          := by rw[prod_rule K (fun x => x) g (by fprop) hg]; simp[id_rule]
+  rw[h']; rfl
 
 open BigOperators in
 theorem pi_rule

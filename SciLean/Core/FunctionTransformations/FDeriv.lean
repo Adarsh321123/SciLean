@@ -65,6 +65,21 @@ by
   rw[fderiv.comp x hf hg]
   ext dx; simp
 
+@[fun_trans, to_any_point]
+theorem fderiv.comp_rule_at_rewritten
+    (f : Y → Z) (g : X → Y) (x : X)
+    (hf : DifferentiableAt K f (g x)) (hg : DifferentiableAt K g x) :
+    (fderiv K fun x : X => f (g x)) x
+    =
+    let y := g x
+    fun dx =>L[K]
+      let dy := fderiv K g x dx
+      let dz := fderiv K f y dy
+      dz :=
+by
+  rw[show (fun x => f (g x)) = f ∘ g by rfl, fderiv.comp x hf hg]
+  ext dx; simp
+
 
 @[fun_trans, to_any_point]
 theorem fderiv.let_rule_at
@@ -85,6 +100,25 @@ by
     rw[h]
     rw[fderiv.comp x hf (DifferentiableAt.prod (by simp) hg)]
     rw[DifferentiableAt.fderiv_prod (by simp) hg]
+  ext dx; simp[ContinuousLinearMap.comp]
+
+@[fun_trans, to_any_point]
+theorem fderiv.let_rule_at_rewritten
+    (f : X → Y → Z) (g : X → Y) (x : X)
+    (hf : DifferentiableAt K (fun xy : X×Y => f xy.1 xy.2) (x, g x))
+    (hg : DifferentiableAt K g x) :
+    (fderiv K fun x : X => let y := g x; f x y) x
+    =
+    let y := g x
+    fun dx =>L[K]
+      let dy := fderiv K g x dx
+      let dz := fderiv K (fun xy : X×Y => f xy.1 xy.2) (x,y) (dx, dy)
+      dz :=
+by
+  have h : (fun x => f x (g x)) = (fun xy : X×Y => f xy.1 xy.2) ∘ (fun x => (x, g x)) := by rfl
+  conv =>
+    lhs
+    rw[h, fderiv.comp x hf (DifferentiableAt.prod (by simp) hg), DifferentiableAt.fderiv_prod (by simp) hg]
   ext dx; simp[ContinuousLinearMap.comp]
 
 
@@ -256,4 +290,24 @@ by
     case succ =>
       rw[show ∀ (n : Nat), n.succ - 1 = n by simp]
       rw[pow_succ]
+      simp; ring
+
+@[fun_trans, to_any_point]
+def HPow.hPow.arg_a0.fderiv_rule_at_rewritten (n : Nat) (x : X)
+    (f : X → K) (hf : DifferentiableAt K f x) :
+    fderiv K (fun x => f x ^ n) x
+    =
+    fun dx =>L[K] n * fderiv K f x dx * (f x ^ (n-1)) :=
+by
+  induction n
+  case zero =>
+    simp; rfl
+  case succ n hn =>
+    ext dx
+    simp_rw[pow_succ]
+    rw[HMul.hMul.arg_a0a1.fderiv_rule_at x _ f (by fun_prop) (by fun_prop), hn]
+    induction n
+    case zero => simp
+    case succ =>
+      rw[show ∀ (n : Nat), n.succ - 1 = n by simp, pow_succ]
       simp; ring

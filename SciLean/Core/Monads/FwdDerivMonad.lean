@@ -151,6 +151,20 @@ by
   apply CDifferentiableM_pure; fun_prop
 
 @[fun_trans]
+theorem const_rule_rewritten (y : m Y) (hy : CDifferentiableValM K y)
+  : fwdDerivM K (fun _ : X => y) = fun _ _ => fwdDerivValM K y :=
+by
+  have h : (fun _ : X => y)
+           =
+           fun _ : X => pure () >>= fun _ => y := by simp
+  rw[h, fwdDerivM_bind, fwdDerivM_pure]
+  fun_trans
+  simp [fwdDerivValM]
+  fun_prop
+  apply hy
+  apply CDifferentiableM_pure; fun_prop
+
+@[fun_trans]
 theorem comp_rule
   (f : Y → m Z) (g : X → Y)
   (hf : CDifferentiableM K f) (hg : CDifferentiable K g)
@@ -166,6 +180,25 @@ by
              =
              fun x => pure (g x) >>= f) by simp]
     rw[FwdDerivMonad.fwdDerivM_bind f (fun x => pure (g x))
+         hf (FwdDerivMonad.CDifferentiableM_pure _ hg)]
+    simp[FwdDerivMonad.fwdDerivM_pure g hg]
+
+@[fun_trans]
+theorem comp_rule_rewritten
+  (f : Y → m Z) (g : X → Y)
+  (hf : CDifferentiableM K f) (hg : CDifferentiable K g)
+  : fwdDerivM K (fun x => f (g x))
+    =
+    fun x dx =>
+      let ydy := fwdDeriv K g x dx
+      fwdDerivM K f ydy.1 ydy.2 :=
+by
+  conv =>
+    lhs
+    rw[show ((fun x => f (g x))
+             =
+             fun x => pure (g x) >>= f) by simp,
+        FwdDerivMonad.fwdDerivM_bind f (fun x => pure (g x))
          hf (FwdDerivMonad.CDifferentiableM_pure _ hg)]
     simp[FwdDerivMonad.fwdDerivM_pure g hg]
 
@@ -188,6 +221,28 @@ by
              =
              fun x => pure (g' x) >>= f') by simp]
     rw[fwdDerivM_bind f' (fun x => pure (g' x)) hf (CDifferentiableM_pure g' hg')]
+    simp[fwdDerivM_pure (K:=K) g' hg']
+    fun_trans; simp
+
+@[fun_trans]
+theorem let_rule_rewritten
+  (f : X → Y → m Z) (g : X → Y)
+  (hf : CDifferentiableM K (fun xy : X×Y => f xy.1 xy.2)) (hg : CDifferentiable K g)
+  : fwdDerivM K (fun x => let y := g x; f x y)
+    =
+    fun x dx =>
+      let ydy := fwdDeriv K g x dx
+      fwdDerivM K (fun xy : X×Y => f xy.1 xy.2) (x,ydy.1) (dx,ydy.2) :=
+by
+  let f' := (fun xy : X×Y => f xy.1 xy.2)
+  let g' := (fun x => (x,g x))
+  have hg' : CDifferentiable K g' := by rw[show g' = (fun x => (x,g x)) by rfl]; fun_prop
+  conv =>
+    lhs
+    rw[show ((fun x => f x (g x))
+             =
+             fun x => pure (g' x) >>= f') by simp,
+             fwdDerivM_bind f' (fun x => pure (g' x)) hf (CDifferentiableM_pure g' hg')]
     simp[fwdDerivM_pure (K:=K) g' hg']
     fun_trans; simp
 

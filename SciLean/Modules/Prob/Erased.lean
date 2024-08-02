@@ -14,6 +14,11 @@ def erase (x : α) : Erased α where
   ex := ⟨x, rfl⟩
   uniq := by intro a b h h'; rw[← h,h']
 
+def erase_rewritten (x : α) : Erased α where
+  spec := Eq x
+  ex := ⟨x, rfl⟩
+  uniq := by intro a b h h'; rw[← h]; rw[h']
+
 @[ext]
 theorem Erased.ext (x y : Erased α) : x.get = y.get → x = y := sorry
 

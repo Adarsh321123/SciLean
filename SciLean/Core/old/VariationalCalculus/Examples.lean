@@ -33,6 +33,14 @@ by
     fun_trans only
     simp
 
+example (f : X⟿Y) : (λ g : X⟿Y => ∫ x, ⟪f x, g x⟫)† = f :=
+by
+  conv =>
+    lhs
+    rw[variationalDual.arg_F.adjoint_simp (fun (g : X⟿Y) => fun x => ⟪f x, g x⟫), adjoint.rule_pi_smooth]
+    fun_trans only
+    simp
+
 example (f : X⟿Y) : (λ g : X⟿Y => ∫ x, ⟪g x, f x⟫)† = f :=
 by
   ignore_fun_prop
@@ -40,6 +48,15 @@ by
     lhs
     rw[variationalDual.arg_F.adjoint_simp (fun g => fun x => ⟪g x, f x⟫)]
     rw[adjoint.rule_pi_smooth (λ x y => ⟪y, f x⟫)]
+    fun_trans only
+    simp
+
+example (f : X⟿Y) : (λ g : X⟿Y => ∫ x, ⟪g x, f x⟫)† = f :=
+by
+  ignore_fun_prop
+  conv =>
+    lhs
+    rw[variationalDual.arg_F.adjoint_simp (fun g => fun x => ⟪g x, f x⟫), adjoint.rule_pi_smooth (λ x y => ⟪y, f x⟫)]
     fun_trans only
     simp
 
@@ -58,12 +75,32 @@ by
       fun_trans only
     simp
 
+example (f : X⟿Y) : (λ g : X⟿Y => ∫ x, ⟪∂ g x, ∂ f x⟫)† = - ∂· (∂ f) :=
+by
+  conv =>
+    lhs
+    rw[variationalDual.arg_F.adjoint_simp (fun g => fun x => ⟪∂ g x, ∂ f x⟫), adjoint.rule_comp (λ v => λ x ⟿ ⟪v x, ∂ f x⟫) Smooth.differential]
+    simp only [adjoint.rule_pi_smooth (λ x y => ⟪y, ∂ f x⟫)]
+    conv =>
+      enter [2]
+      fun_trans only
+    simp
+
 example (f : X⟿ℝ) : (λ g : X⟿ℝ => ∫ x, ⟪∇ g x, ∇ f x⟫)† = - ∇· (∇ f) :=
 by
   conv =>
     lhs
     rw[variationalDual.arg_F.adjoint_simp (fun (g : X⟿ℝ) => fun x => ⟪∇ g x, ∇ f x⟫)]
     rw[adjoint.rule_comp (λ v => λ x ⟿ ⟪v x, ∇ f x⟫) Smooth.gradient]
+    simp only [adjoint.rule_pi_smooth (λ x y => ⟪y, ∇ f x⟫)]
+    fun_trans only
+    simp
+
+example (f : X⟿ℝ) : (λ g : X⟿ℝ => ∫ x, ⟪∇ g x, ∇ f x⟫)† = - ∇· (∇ f) :=
+by
+  conv =>
+    lhs
+    rw[variationalDual.arg_F.adjoint_simp (fun (g : X⟿ℝ) => fun x => ⟪∇ g x, ∇ f x⟫), adjoint.rule_comp (λ v => λ x ⟿ ⟪v x, ∇ f x⟫) Smooth.gradient]
     simp only [adjoint.rule_pi_smooth (λ x y => ⟪y, ∇ f x⟫)]
     fun_trans only
     simp

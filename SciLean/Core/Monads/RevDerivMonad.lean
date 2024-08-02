@@ -148,6 +148,27 @@ by
   apply HasAdjDiffM_pure; fun_prop
 
 @[fun_trans]
+theorem const_rule_rewritten (y : m Y) (hy : HasAdjDiffValM K y)
+  : revDerivM K (fun _ : X => y)
+    =
+    (fun _ => do
+      let ydy ← revDerivValM K y
+      pure (ydy.1,
+            fun dy' => do
+              let _ ← ydy.2 dy'
+              pure 0)) :=
+by
+  have h : (fun _ : X => y)
+           =
+           fun _ : X => pure () >>= fun _ => y := by simp
+  rw[h, revDerivM_bind, revDerivM_pure]
+  fun_trans
+  simp [revDerivValM]
+  fun_prop
+  apply hy
+  apply HasAdjDiffM_pure; fun_prop
+
+@[fun_trans]
 theorem comp_rule
   (f : Y → m Z) (g : X → Y)
   (hf : HasAdjDiffM K f) (hg : HasAdjDiff K g)
@@ -167,6 +188,29 @@ by
              =
              fun x => pure (g x) >>= f) by simp]
     rw[revDerivM_bind f (fun x => pure (g x))
+         hf (HasAdjDiffM_pure _ hg)]
+    simp[revDerivM_pure g hg]
+
+@[fun_trans]
+theorem comp_rule_rewritten
+  (f : Y → m Z) (g : X → Y)
+  (hf : HasAdjDiffM K f) (hg : HasAdjDiff K g)
+  : revDerivM K (fun x => f (g x))
+    =
+    (fun x => do
+      let ydg := revDeriv K g x
+      let zdf ← revDerivM K f ydg.1
+      pure (zdf.1,
+            fun dz => do
+              let dy ← zdf.2 dz
+              pure (ydg.2 dy))) :=
+by
+  conv =>
+    lhs
+    rw[show ((fun x => f (g x))
+             =
+             fun x => pure (g x) >>= f) by simp,
+        revDerivM_bind f (fun x => pure (g x))
          hf (HasAdjDiffM_pure _ hg)]
     simp[revDerivM_pure g hg]
 
@@ -194,6 +238,33 @@ by
              =
              fun x => pure (g' x) >>= f') by simp]
     rw[revDerivM_bind f' (fun x => pure (g' x)) hf (HasAdjDiffM_pure g' hg')]
+    simp[revDerivM_pure (K:=K) g' hg']
+    fun_trans; simp
+
+@[fun_trans]
+theorem let_rule_rewritten
+  (f : X → Y → m Z) (g : X → Y)
+  (hf : HasAdjDiffM K (fun xy : X×Y => f xy.1 xy.2)) (hg : HasAdjDiff K g)
+  : revDerivM K (fun x => let y := g x; f x y)
+    =
+    (fun x => do
+      let ydg := revDeriv K g x
+      let zdf ← revDerivM K (fun xy : X×Y => f xy.1 xy.2) (x,ydg.1)
+      pure (zdf.1,
+            fun dz => do
+              let dxy ← zdf.2 dz
+              let dx := ydg.2 dxy.2
+              pure (dxy.1 + dx))) :=
+by
+  let f' := (fun xy : X×Y => f xy.1 xy.2)
+  let g' := (fun x => (x,g x))
+  have hg' : HasAdjDiff K g' := by rw[show g' = (fun x => (x,g x)) by rfl]; fun_prop
+  conv =>
+    lhs
+    rw[show ((fun x => f x (g x))
+             =
+             fun x => pure (g' x) >>= f') by simp,
+      revDerivM_bind f' (fun x => pure (g' x)) hf (HasAdjDiffM_pure g' hg')]
     simp[revDerivM_pure (K:=K) g' hg']
     fun_trans; simp
 

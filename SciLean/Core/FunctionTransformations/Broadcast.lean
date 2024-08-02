@@ -109,6 +109,22 @@ by
   funext mx; simp[broadcast, BroadcastType.equiv]
 
 @[fun_trans]
+theorem let_rule_rewritten
+  (g : X → Y) (f : X → Y → Z)
+  : broadcast tag R ι (fun x => let y := g x; f x y)
+    =
+    fun mx =>
+      let my := broadcast tag R ι g mx
+      let mz := broadcast tag R ι (fun (xy : X×Y) => f xy.1 xy.2) (mx,my)
+      mz :=
+by
+  rw[show (fun x => let y := g x; f x y)
+          =
+          fun x => (fun (xy : X×Y) => f xy.1 xy.2) ((fun x' => (x', g x')) x) by rfl,
+          comp_rule _ _]
+  funext mx; simp[broadcast, BroadcastType.equiv]
+
+@[fun_trans]
 theorem apply_rule (j : κ)
   : broadcast tag R ι (fun (x : (j : κ) → E j) => x j)
     =

@@ -15,6 +15,11 @@ theorem let_congr_eq {α : Sort u} {β : Sort v} {a a' : α} {b b' : α → β}
 by
   rw[h₁]; rw[h₂ a' rfl]
 
+theorem let_congr_eq_rewritten {α : Sort u} {β : Sort v} {a a' : α} {b b' : α → β}
+    (h₁ : a = a') (h₂ : ∀ x, x = a' → b x = b' x) : (let x := a; b x) = (let x := a'; b' x) :=
+by
+  rw[h₁, h₂ a' rfl]
+
 private def mkLetCongrEq (h₁ h₂ : Expr) : MetaM Expr :=
   mkAppM ``let_congr_eq #[h₁, h₂]
 

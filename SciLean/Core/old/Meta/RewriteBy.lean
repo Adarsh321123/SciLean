@@ -61,6 +61,19 @@ by
     apply (h ▸ A).2
   }
 
+example {α : Type} (a b : α) (A : (Σ' x, x = a)) (h : (Σ' x, x = a) = (Σ' x, x = b))
+  : (a = b) ↔ (h ▸ A).1 = A.1 :=
+by
+  constructor
+  {
+    intro eq; rw[A.2]; conv => rhs; rw [eq]
+    apply (h ▸ A).2
+  }
+  {
+    intro eq; rw[← A.2, ← eq]
+    apply (h ▸ A).2
+  }
+
 open Lean.Parser.Tactic.Conv
 
 

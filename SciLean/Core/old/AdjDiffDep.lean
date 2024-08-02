@@ -363,6 +363,32 @@ by
   simp[adjointDifferentialDep, tangentMapDep, reverseDifferentialDep,uncurryN, Prod.Uncurry.uncurry,instUncurryHAddNatInstHAddInstAddNatOfNatForAllProd]
   admit
 
+@[simp ↓ low-3, diff low-3]
+theorem subst.arg_x.revDiffDep_simp_rewritten
+  (f : X → Y → Z) [instf : HasAdjDiffDepNT 2 f]
+  (g : X → Y) [instg : HasAdjDiffDepT g]
+  : ℛ (λ x => f x (g x))
+    =
+    λ x =>
+      let ⟨y,dg',hg⟩ := ℛ g x
+      let ⟨z,df',hf⟩ := ℛ (uncurryN 2 f) (x,y)
+      ⟨z, λ dz' =>
+           let (dx₁,dy) := df' dz'
+           dx₁ + dg' dy
+      , by
+          rw[hg, (rfl : uncurryN 2 f (x,y) = f x y)] at hf
+          apply hf
+          done⟩
+    :=
+by
+  have := instg.proof.1
+  have := instg.proof.2
+  have := instf.proof.1
+
+  funext x;
+  simp[adjointDifferentialDep, tangentMapDep, reverseDifferentialDep,uncurryN, Prod.Uncurry.uncurry,instUncurryHAddNatInstHAddInstAddNatOfNatForAllProd]
+  admit
+
 
 @[simp ↓ low-2, diff low-2]
 theorem subst.arg_x.parm1.revDiffDep_simp
@@ -380,6 +406,29 @@ theorem subst.arg_x.parm1.revDiffDep_simp
       , by
           rw[hg]
           rw[(rfl : (uncurryN 2 (λ x y => f x y a)) (x,y) = f x y a)] at hf
+          apply hf
+          done⟩
+    :=
+by
+  apply subst.arg_x.revDiffDep_simp (λ x y => f x y a) g
+  done
+
+
+@[simp ↓ low-2, diff low-2]
+theorem subst.arg_x.parm1.revDiffDep_simp_rewritten
+  (a : α)
+  (f : X → Y → α → Z) [HasAdjDiffDepNT 2 λ x y => f x y a]
+  (g : X → Y) [instg : HasAdjDiffDepT g]
+  : ℛ (λ x => f x (g x) a)
+    =
+    λ x =>
+      let ⟨y,dg',hg⟩ := ℛ g x
+      let ⟨z,df',hf⟩ := ℛ (uncurryN 2 (λ x y => f x y a)) (x,y)
+      ⟨z, λ dz' =>
+           let (dx₁,dy) := df' dz'
+           dx₁ + dg' dy
+      , by
+          rw[hg, (rfl : (uncurryN 2 (λ x y => f x y a)) (x,y) = f x y a)] at hf
           apply hf
           done⟩
     :=
@@ -411,6 +460,28 @@ by
   done
 
 @[simp ↓ low-2, diff low-2]
+theorem subst.arg_x.parm2.revDiffDep_simp_rewritten
+  (a : α) (b : β)
+  (f : X → Y → α → β → Z) [HasAdjDiffDepNT 2 λ x y => f x y a b]
+  (g : X → Y) [instg : HasAdjDiffDepT g]
+  : ℛ (λ x => f x (g x) a b)
+    =
+    λ x =>
+      let ⟨y,dg',hg⟩ := ℛ g x
+      let ⟨z,df',hf⟩ := ℛ (uncurryN 2 (λ x y => f x y a b)) (x,y)
+      ⟨z, λ dz' =>
+           let (dx₁,dy) := df' dz'
+           dx₁ + dg' dy
+      , by
+          rw[hg, (rfl : (uncurryN 2 (λ x y => f x y a b)) (x,y) = f x y a b)] at hf
+          apply hf
+          done⟩
+    :=
+by
+  apply subst.arg_x.revDiffDep_simp (λ x y => f x y a b) g
+  done
+
+@[simp ↓ low-2, diff low-2]
 theorem subst.arg_x.parm3.revDiffDep_simp
   (a : α) (b : β) (c : γ)
   (f : X → Y → α → β → γ → Z) [HasAdjDiffDepNT 2 λ x y => f x y a b c]
@@ -422,6 +493,24 @@ theorem subst.arg_x.parm3.revDiffDep_simp
       let ⟨z,df',hf⟩ := ℛ (uncurryN 2 (λ x y => f x y a b c)) (x,y)
       ⟨z, λ dz' => let (dx₁,dy) := df' dz'; dx₁ + dg' dy,
        by rw[hg]; rw[← hf]; done⟩
+    :=
+by
+  apply subst.arg_x.revDiffDep_simp (λ x y => f x y a b c) g
+  done
+
+
+@[simp ↓ low-2, diff low-2]
+theorem subst.arg_x.parm3.revDiffDep_simp_rewritten
+  (a : α) (b : β) (c : γ)
+  (f : X → Y → α → β → γ → Z) [HasAdjDiffDepNT 2 λ x y => f x y a b c]
+  (g : X → Y) [instg : HasAdjDiffDepT g]
+  : ℛ (λ x => f x (g x) a b c)
+    =
+    λ x =>
+      let ⟨y,dg',hg⟩ := ℛ g x
+      let ⟨z,df',hf⟩ := ℛ (uncurryN 2 (λ x y => f x y a b c)) (x,y)
+      ⟨z, λ dz' => let (dx₁,dy) := df' dz'; dx₁ + dg' dy,
+       by rw[hg, ← hf]; done⟩
     :=
 by
   apply subst.arg_x.revDiffDep_simp (λ x y => f x y a b c) g
@@ -451,6 +540,20 @@ by
   simp[reverseDifferentialDep, uncurryN2.arg_x.diffDep_simp]
   done
 
+@[simp ↓ low-1, diff low-1]
+theorem comp.arg_x.revDiffDep_simp_rewritten
+  (f : Y → Z) [instf : HasAdjDiffDepT f]
+  (g : X → Y) [instg : HasAdjDiffDepT g]
+  : ℛ (λ x => f (g x))
+    =
+    λ x =>
+      let ⟨y,dg',hg⟩ := ℛ g x
+      let ⟨z,df',hf⟩ := ℛ f y
+      ⟨z, λ dz => dg' (df' dz), by rw[hg, hf]; done⟩ :=
+by
+  simp[reverseDifferentialDep, uncurryN2.arg_x.diffDep_simp]
+  done
+
 @[simp ↓ low-2, diff low-2]
 theorem diag.arg_x.revDiffDep_simp
   (f : Y₁ → Y₂ → Z) [HasAdjDiffDepNT 2 f]
@@ -464,6 +567,27 @@ theorem diag.arg_x.revDiffDep_simp
       let ⟨z, df', hf⟩ := ℛ (uncurryN 2 f) (y₁,y₂)
       ⟨z, λ dz => let (dy₁,dy₂) := df' dz; dg₁' dy₁ + dg₂' dy₂,
        by rw[h₁,h₂]; rw[← hf]; done⟩
+      -- dg₁' ((∂† λ y₁ => f y₁ y₂) y₁ (h₁ ▸ h₂ ▸ dx'))
+      -- +
+      -- dg₂' ((∂† λ y₂ => f y₁ y₂) y₂ (h₂ ▸ h₁ ▸ dx'))
+    :=
+by
+  simp[reverseDifferentialDep, uncurryN2.arg_x.diffDep_simp]; unfold hold;simp
+  done
+
+@[simp ↓ low-2, diff low-2]
+theorem diag.arg_x.revDiffDep_simp_rewritten
+  (f : Y₁ → Y₂ → Z) [HasAdjDiffDepNT 2 f]
+  (g₁ : X → Y₁) [hg : HasAdjDiffDepT g₁]
+  (g₂ : X → Y₂) [HasAdjDiffDepT g₂]
+  : ℛ (λ x => f (g₁ x) (g₂ x))
+    =
+    λ x =>
+      let ⟨y₁,dg₁',h₁⟩ := ℛ g₁ x
+      let ⟨y₂,dg₂',h₂⟩ := ℛ g₂ x
+      let ⟨z, df', hf⟩ := ℛ (uncurryN 2 f) (y₁,y₂)
+      ⟨z, λ dz => let (dy₁,dy₂) := df' dz; dg₁' dy₁ + dg₂' dy₂,
+       by rw[h₁,h₂,← hf]; done⟩
       -- dg₁' ((∂† λ y₁ => f y₁ y₂) y₁ (h₁ ▸ h₂ ▸ dx'))
       -- +
       -- dg₂' ((∂† λ y₂ => f y₁ y₂) y₂ (h₂ ▸ h₁ ▸ dx'))

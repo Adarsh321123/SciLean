@@ -117,6 +117,15 @@ by
   rw[semiAdjoint_choose _ hf]
   rw[← Classical.choose_spec hf.1 φ y hφ]
 
+def semiAdjoint_unique_rewritten (f : X → Y) (hf : HasSemiAdjoint K f)
+  (f' : Y → X) (hf' : ∀ x y, TestFunction x → ⟪y, f x⟫[K] = ⟪f' y, x⟫[K])
+  : f' = semiAdjoint K f :=
+by
+  funext y
+  apply semi_inner_ext K
+  intro φ hφ
+  rw[← hf' φ y hφ, semiAdjoint_choose _ hf, ← Classical.choose_spec hf.1 φ y hφ]
+
 -- Lambda calculus rules -------------------------------------------------------
 --------------------------------------------------------------------------------
 
@@ -143,6 +152,17 @@ theorem comp_rule
   constructor
   . apply Exists.intro (fun z => semiAdjoint K g (semiAdjoint K f z)) _
     intros; rw[semiAdjoint_move]; rw[semiAdjoint_move]
+    sorry_proof -- HasSemiAdjoint should preserve test functions
+    repeat assumption
+  . fun_prop
+
+@[fun_prop]
+theorem comp_rule_rewritten
+    (f : Y → Z) (g : X → Y) (hf : HasSemiAdjoint K f) (hg : HasSemiAdjoint K g) :
+    HasSemiAdjoint K (fun x => f (g x)) := by
+  constructor
+  . apply Exists.intro (fun z => semiAdjoint K g (semiAdjoint K f z)) _
+    intros; rw[semiAdjoint_move, semiAdjoint_move]
     sorry_proof -- HasSemiAdjoint should preserve test functions
     repeat assumption
   . fun_prop
@@ -190,6 +210,18 @@ theorem Prod.mk.arg_fstsnd.HasSemiAdjoint_rule
     intros; dsimp[Inner.inner]
     rw[SemiInnerProductSpace.add_left]
     rw[semiAdjoint_move]; rw[semiAdjoint_move]
+    repeat aesop
+  . fun_prop
+
+@[fun_prop]
+theorem Prod.mk.arg_fstsnd.HasSemiAdjoint_rule_rewritten
+    (g : X → Y) (hg : HasSemiAdjoint K g)
+    (f : X → Z) (hf : HasSemiAdjoint K f) :
+    HasSemiAdjoint K fun x => (g x, f x) := by
+  constructor
+  . apply Exists.intro (fun yz => semiAdjoint K g yz.1 + semiAdjoint K f yz.2) _
+    intros; dsimp[Inner.inner]
+    rw[SemiInnerProductSpace.add_left, semiAdjoint_move, semiAdjoint_move]
     repeat aesop
   . fun_prop
 

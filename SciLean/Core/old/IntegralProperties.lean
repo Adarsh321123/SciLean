@@ -58,6 +58,14 @@ by
     fun_trans only
     simp
 
+example (f : X⟿Y) : (λ g : X⟿Y => ∫ x, ⟪f x, g x⟫)† = f :=
+by
+  conv =>
+    lhs
+    rw[variationalDual.arg_F.adjoint_simp (fun (g : X⟿Y) => fun x => ⟪f x, g x⟫), adjoint.rule_pi_smooth]
+    fun_trans only
+    simp
+
 example (f : X⟿Y) : (λ g : X⟿Y => ∫ x, ⟪g x, f x⟫)† = f :=
 by
   ignore_fun_prop
@@ -65,6 +73,15 @@ by
     lhs
     rw[variationalDual.arg_F.adjoint_simp (fun g => fun x => ⟪g x, f x⟫)]
     rw[adjoint.rule_pi_smooth (λ x y => ⟪y, f x⟫)]
+    fun_trans only
+    simp
+
+example (f : X⟿Y) : (λ g : X⟿Y => ∫ x, ⟪g x, f x⟫)† = f :=
+by
+  ignore_fun_prop
+  conv =>
+    lhs
+    rw[variationalDual.arg_F.adjoint_simp (fun g => fun x => ⟪g x, f x⟫), adjoint.rule_pi_smooth (λ x y => ⟪y, f x⟫)]
     fun_trans only
     simp
 
@@ -83,12 +100,32 @@ by
       fun_trans only
     simp
 
+example (f : X⟿Y) : (λ g : X⟿Y => ∫ x, ⟪∂ g x, ∂ f x⟫)† = - ∂· (∂ f) :=
+by
+  conv =>
+    lhs
+    rw[variationalDual.arg_F.adjoint_simp (fun g => fun x => ⟪∂ g x, ∂ f x⟫), adjoint.rule_comp (λ v => λ x ⟿ ⟪v x, ∂ f x⟫) Smooth.differential]
+    simp only [adjoint.rule_pi_smooth (λ x y => ⟪y, ∂ f x⟫)]
+    conv =>
+      enter [2]
+      fun_trans only
+    simp
+
 example (f : X⟿ℝ) : (λ g : X⟿ℝ => ∫ x, ⟪∇ g x, ∇ f x⟫)† = - ∇· (∇ f) :=
 by
   conv =>
     lhs
     rw[variationalDual.arg_F.adjoint_simp (fun (g : X⟿ℝ) => fun x => ⟪∇ g x, ∇ f x⟫)]
     rw[adjoint.rule_comp (λ v => λ x ⟿ ⟪v x, ∇ f x⟫) Smooth.gradient]
+    simp only [adjoint.rule_pi_smooth (λ x y => ⟪y, ∇ f x⟫)]
+    fun_trans only
+    simp
+
+example (f : X⟿ℝ) : (λ g : X⟿ℝ => ∫ x, ⟪∇ g x, ∇ f x⟫)† = - ∇· (∇ f) :=
+by
+  conv =>
+    lhs
+    rw[variationalDual.arg_F.adjoint_simp (fun (g : X⟿ℝ) => fun x => ⟪∇ g x, ∇ f x⟫), adjoint.rule_comp (λ v => λ x ⟿ ⟪v x, ∇ f x⟫) Smooth.gradient]
     simp only [adjoint.rule_pi_smooth (λ x y => ⟪y, ∇ f x⟫)]
     fun_trans only
     simp
@@ -335,6 +372,17 @@ theorem elemwise_adjoint_simp_alt2 {Y'} [Vec Y'] {Z} [Hilbert Z]
 by
   rw[elemwise_adjoint_simp_alt1 (λ x => x) (λ x y => A x y (g' x))]
   rw[id.arg_x.adj_simp]
+  done
+
+@[simp ↓, diff]
+theorem elemwise_adjoint_simp_alt2_rewritten {Y'} [Vec Y'] {Z} [Hilbert Z]
+  (A : X → Y → Y' → Z) [∀ x y', HasAdjointT (λ y => A x y y')] [IsSmoothNT 3 A]
+  (g' : X → Y' := λ _ => 0) [IsSmoothT g']
+  : (λ (g : X⟿Y) => λ x ⟿ A x (g x) (g' x))†
+    =
+    λ h => λ x ⟿ (λ y => A x y (g' x))† (h x) :=
+by
+  rw[elemwise_adjoint_simp_alt1 (λ x => x) (λ x y => A x y (g' x)), id.arg_x.adj_simp]
   done
 
 

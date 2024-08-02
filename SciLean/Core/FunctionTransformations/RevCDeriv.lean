@@ -274,6 +274,22 @@ by
   rw[SciLean.cderiv.arg_a3.semiAdjoint_rule _ _ _ (cderiv K g x) (by fprop)]
 
 
+theorem comp_rule_at'_rewritten
+  (f : Y → Z) (g : X → Y) (x : X)
+  (hf : HasAdjDiffAt K f (g x)) (hg : HasAdjDiffAt K g x)
+  : revCDeriv K (fun x : X => f (g x)) x
+    =
+    let ydg := revCDeriv K g x
+    revCDeriv K (fun x' => f (ydg.1 + semiAdjoint K ydg.2 (x' - x))) x :=
+by
+  have ⟨_,_⟩ := hf
+  have ⟨_,_⟩ := hg
+  unfold revCDeriv; simp; ftrans; simp
+  rw[cderiv.arg_dx.semiAdjoint_rule_at K f (cderiv K g x) (g x) (by fprop) (by fprop), cderiv.comp_rule_at K f (fun x' => g x + cderiv K g x (x' - x)) x (by simp; fprop) (by sorry_proof)]
+  ftrans; simp
+  rw[SciLean.cderiv.arg_a3.semiAdjoint_rule _ _ _ (cderiv K g x) (by fprop)]
+
+
 theorem let_rule_at
   (f : X → Y → Z) (g : X → Y) (x : X)
   (hf : HasAdjDiffAt K (fun (xy : X×Y) => f xy.1 xy.2) (x, g x)) (hg : HasAdjDiffAt K g x)

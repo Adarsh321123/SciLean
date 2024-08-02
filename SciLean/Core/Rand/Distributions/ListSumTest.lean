@@ -82,5 +82,23 @@ def foobar' (θ : R) (l : List R) : Rand R := do
   return f 0
 
 
+def foobar'_rewritten (θ : R) (l : List R) : Rand R := do
+  let f ←
+    derive_random_approx
+      fun acc => foobar l acc
+    by
+      induction_list l head tail prev h
+      . simp[foobar]
+      . simp[foobar,h]
+        conv =>
+          enter [acc]
+          rw[add_as_flip_E θ sorry_proof, pull_E_affine (f:=prev) (hf:=by rw[←h]; fun_prop)]
+      conv =>
+        enter [3,head,tail,prev]
+        rw[pull_E_lambda]
+      rw[pull_E_list_recOn (D:=fun _ => Bool) (l:=l) (x₀:=_) (r:=fun _ _ => flip θ) (hf:=by fun_prop)]
+  return f 0
+
+
 #eval print_mean_variance (foobar' 0.5 [1.0,2,3,4]) 1000 ""
 #eval print_mean_variance (foobar' 0.3 [4.0,3,2,1]) 1000 ""
