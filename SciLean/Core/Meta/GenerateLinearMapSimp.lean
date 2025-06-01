@@ -42,7 +42,7 @@ theorem _root_.IsLinearMap.sum_push
 theorem _root_.IsLinearMap.sum_pull
   {f : X → Y} (hf : IsLinearMap K f)
   (ι : Type) [IndexType.{_,u} ι] [IndexType.{_,v} ι] (x : ι → X)
-  : f (∑ i, x i) = ∑ i, f (x i) := by sorry_proof
+  : f (∑ i, x i) = ∑ i, f (x i) := by sorry
 
 theorem _root_.IsLinearMap.sub_push (x x' : X)
   : f x - f x' = f (x - x') := by rw[hf.map_sub]
